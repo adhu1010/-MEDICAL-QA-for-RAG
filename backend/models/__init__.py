@@ -23,7 +23,10 @@ class RetrievalStrategy(str, Enum):
     """Retrieval strategies"""
     KG_ONLY = "kg_only"
     VECTOR_ONLY = "vector_only"
-    HYBRID = "hybrid"
+    SPARSE_ONLY = "sparse_only"
+    DENSE_SPARSE = "dense_sparse"  # Dense (vector) + Sparse (BM25)
+    HYBRID = "hybrid"  # KG + Vector (legacy)
+    FULL_HYBRID = "full_hybrid"  # KG + Dense + Sparse
 
 
 class MedicalQuery(BaseModel):
@@ -59,8 +62,8 @@ class ProcessedQuery(BaseModel):
 
 
 class RetrievedEvidence(BaseModel):
-    """Evidence retrieved from vector or KG"""
-    source_type: str  # "vector" or "kg"
+    """Evidence retrieved from vector, sparse, or KG"""
+    source_type: str  # "vector" (dense), "sparse" (BM25), or "kg"
     content: str
     confidence: float
     metadata: Dict[str, Any] = {}

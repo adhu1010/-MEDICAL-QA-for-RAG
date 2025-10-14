@@ -9,7 +9,7 @@ from backend.models import (
     RetrievalStrategy
 )
 from backend.config import agent_config, settings
-from backend.retrievers import get_vector_retriever, get_kg_retriever
+from backend.retrievers import get_vector_retriever, get_kg_retriever, get_sparse_retriever
 from backend.utils import calculate_weighted_confidence
 
 
@@ -22,7 +22,8 @@ class AgentController:
         """Initialize agent with retrievers"""
         self.vector_retriever = get_vector_retriever()
         self.kg_retriever = get_kg_retriever()
-        logger.info("Agent controller initialized")
+        self.sparse_retriever = get_sparse_retriever()
+        logger.info("Agent controller initialized with dense, sparse, and KG retrievers")
     
     def decide_strategy(self, query: ProcessedQuery) -> RetrievalStrategy:
         """
@@ -39,6 +40,65 @@ class AgentController:
         
         logger.info(f"Agent decided on strategy: {strategy}")
         return strategy
+    
+    def _reciprocal_rank_fusion(
+        self,
+        evidences: List[RetrievedEvidence],
+        k: int = 60
+    ) -> List[RetrievedEvidence]:
+        """
+        Apply Reciprocal Rank Fusion to combine rankings from different retrievers
+        
+        Args:
+            evidences: List of evidences from different sources
+            k: RRF constant (default 60, standard value)
+            
+        Returns:
+            Re-ranked list of evidences
+        """
+        # Group by source type
+        source_groups = {}
+        for evidence in evidences:
+            source_type = evidence.source_type
+            if source_type not in source_groups:
+                source_groups[source_type] = []
+            source_groups[source_type].append(evidence)
+        
+        # Sort each group by confidence (original ranking)
+        for source_type in source_groups:
+            source_groups[source_type].sort(key=lambda x: x.confidence, reverse=True)
+        
+        # Calculate RRF scores
+        rrf_scores = {}
+        
+        for source_type, source_evidences in source_groups.items():
+            for rank, evidence in enumerate(source_evidences):
+                # Use content as unique identifier
+                doc_id = evidence.content
+                
+                # RRF formula: 1 / (k + rank)
+                rrf_score = 1.0 / (k + rank + 1)
+                
+                if doc_id in rrf_scores:
+                    rrf_scores[doc_id]['score'] += rrf_score
+                else:
+                    rrf_scores[doc_id] = {
+                        'score': rrf_score,
+                        'evidence': evidence
+                    }
+        
+        # Sort by RRF score
+        ranked = sorted(rrf_scores.values(), key=lambda x: x['score'], reverse=True)
+        
+        # Update confidence with RRF score and return evidences
+        result = []
+        for item in ranked:
+            evidence = item['evidence']
+            evidence.confidence = item['score']
+            result.append(evidence)
+        
+        logger.info(f"Applied RRF fusion to {len(result)} unique documents")
+        return result
     
     def retrieve_with_strategy(
         self,
@@ -63,16 +123,36 @@ class AgentController:
             evidences = self.kg_retriever.retrieve(query)
             
         elif strategy == RetrievalStrategy.VECTOR_ONLY:
-            # Only vector search
-            logger.info("Executing vector-only retrieval")
+            # Only dense vector search
+            logger.info("Executing dense vector-only retrieval")
             evidences = self.vector_retriever.retrieve(query)
             
+        elif strategy == RetrievalStrategy.SPARSE_ONLY:
+            # Only sparse (BM25) search
+            logger.info("Executing sparse BM25-only retrieval")
+            evidences = self.sparse_retriever.retrieve(query)
+            
+        elif strategy == RetrievalStrategy.DENSE_SPARSE:
+            # Dense + Sparse hybrid
+            logger.info("Executing dense+sparse hybrid retrieval")
+            vector_evidences = self.vector_retriever.retrieve(query)
+            sparse_evidences = self.sparse_retriever.retrieve(query)
+            evidences = vector_evidences + sparse_evidences
+            
         elif strategy == RetrievalStrategy.HYBRID:
-            # Both KG and vector
-            logger.info("Executing hybrid retrieval")
+            # Legacy: KG + Dense vector
+            logger.info("Executing hybrid retrieval (KG + dense)")
             kg_evidences = self.kg_retriever.retrieve(query)
             vector_evidences = self.vector_retriever.retrieve(query)
             evidences = kg_evidences + vector_evidences
+            
+        elif strategy == RetrievalStrategy.FULL_HYBRID:
+            # All three: KG + Dense + Sparse
+            logger.info("Executing full hybrid retrieval (KG + dense + sparse)")
+            kg_evidences = self.kg_retriever.retrieve(query)
+            vector_evidences = self.vector_retriever.retrieve(query)
+            sparse_evidences = self.sparse_retriever.retrieve(query)
+            evidences = kg_evidences + vector_evidences + sparse_evidences
         
         logger.info(f"Retrieved {len(evidences)} total evidences")
         return evidences
@@ -83,7 +163,7 @@ class AgentController:
         query: ProcessedQuery
     ) -> FusedEvidence:
         """
-        Fuse and rank evidence from multiple sources
+        Fuse and rank evidence from multiple sources using RRF
         
         Args:
             evidences: List of retrieved evidences
@@ -102,19 +182,30 @@ class AgentController:
         # Separate by source type
         kg_evidences = [e for e in evidences if e.source_type == "kg"]
         vector_evidences = [e for e in evidences if e.source_type == "vector"]
+        sparse_evidences = [e for e in evidences if e.source_type == "sparse"]
         
-        # Calculate weighted scores
-        fusion_method = "weighted_fusion"
-        
-        # Apply fusion weights
-        for evidence in kg_evidences:
-            evidence.confidence *= agent_config.FUSION_WEIGHT_KG
-        
-        for evidence in vector_evidences:
-            evidence.confidence *= agent_config.FUSION_WEIGHT_VECTOR
-        
-        # Sort by adjusted confidence
-        evidences.sort(key=lambda x: x.confidence, reverse=True)
+        # Determine fusion method
+        if sparse_evidences and vector_evidences:
+            # Use Reciprocal Rank Fusion (RRF) for dense+sparse
+            fusion_method = "reciprocal_rank_fusion"
+            evidences = self._reciprocal_rank_fusion(evidences)
+        else:
+            # Use weighted fusion for other combinations
+            fusion_method = "weighted_fusion"
+            
+            # Apply fusion weights
+            for evidence in kg_evidences:
+                evidence.confidence *= agent_config.FUSION_WEIGHT_KG
+            
+            for evidence in vector_evidences:
+                evidence.confidence *= agent_config.FUSION_WEIGHT_VECTOR
+            
+            # Sparse uses default weight of 1.0
+            for evidence in sparse_evidences:
+                evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_SPARSE', 0.5)
+            
+            # Sort by adjusted confidence
+            evidences.sort(key=lambda x: x.confidence, reverse=True)
         
         # Calculate combined confidence
         if evidences:
@@ -124,8 +215,8 @@ class AgentController:
             combined_confidence = 0.0
         
         logger.info(
-            f"Fused evidence: {len(kg_evidences)} KG + {len(vector_evidences)} vector, "
-            f"combined confidence: {combined_confidence:.2f}"
+            f"Fused evidence: {len(kg_evidences)} KG + {len(vector_evidences)} dense + "
+            f"{len(sparse_evidences)} sparse, combined confidence: {combined_confidence:.2f}"
         )
         
         return FusedEvidence(

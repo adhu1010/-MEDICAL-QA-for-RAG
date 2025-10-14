@@ -192,11 +192,70 @@ Answer:"""
             
             answer = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # For causal models, remove the prompt from the answer
-            if "biogpt" in settings.llm_model.lower() and prompt in answer:
-                answer = answer.replace(prompt, "").strip()
+            logger.info(f"BioGPT raw output length: {len(answer)} chars")
+            logger.debug(f"BioGPT raw output: {answer[:500]}...")  # First 500 chars
             
-            return answer if answer.strip() else self._generate_fallback(prompt, evidence_texts)
+            # For causal models, extract answer after the prompt
+            if "biogpt" in settings.llm_model.lower():
+                # Try to find "Answer:" marker and extract text after it
+                if "Answer:" in answer:
+                    # Split on "Answer:" and take the last part
+                    parts = answer.split("Answer:")
+                    answer_text = parts[-1].strip()
+                    
+                    logger.info(f"Found 'Answer:' marker, extracted {len(answer_text)} chars")
+                    
+                    # Clean up common issues
+                    # Remove any leftover prompt fragments
+                    if "Question:" in answer_text:
+                        answer_text = answer_text.split("Question:")[0].strip()
+                        logger.info("Removed 'Question:' fragment")
+                    if "Evidence:" in answer_text:
+                        answer_text = answer_text.split("Evidence:")[0].strip()
+                        logger.info("Removed 'Evidence:' fragment")
+                    if "Instructions:" in answer_text:
+                        answer_text = answer_text.split("Instructions:")[0].strip()
+                        logger.info("Removed 'Instructions:' fragment")
+                    
+                    # Remove special tags like </s>, <|endoftext|>, etc.
+                    answer_text = answer_text.replace("</s>", "").replace("<|endoftext|>", "").strip()
+                    
+                    answer = answer_text
+                    logger.info(f"Cleaned answer length: {len(answer)} chars")
+                else:
+                    logger.warning("No 'Answer:' marker found, trying direct prompt removal")
+                    # If no "Answer:" marker, try removing the prompt directly
+                    if prompt in answer:
+                        answer = answer.replace(prompt, "").strip()
+                        logger.info(f"Removed prompt, remaining: {len(answer)} chars")
+                    
+                # Final cleanup: take only the first paragraph/sentence if it's too messy
+                if len(answer) > 1000:  # If too long, likely includes prompt
+                    logger.warning(f"Answer too long ({len(answer)} chars), extracting first sentences")
+                    # Take first reasonable chunk
+                    sentences = answer.split(". ")
+                    clean_sentences = []
+                    for sent in sentences:
+                        # Skip sentences that look like prompt artifacts
+                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following"]):
+                            continue
+                        clean_sentences.append(sent)
+                        if len(clean_sentences) >= 3:  # Take first 3-4 sentences
+                            break
+                    answer = ". ".join(clean_sentences)
+                    if answer and not answer.endswith("."):
+                        answer += "."
+                    logger.info(f"Extracted {len(clean_sentences)} clean sentences")
+            
+            logger.info(f"Final answer length: {len(answer)} chars")
+            logger.debug(f"Final answer preview: {answer[:200]}...")
+            
+            # If answer is still messy or contains prompt artifacts, use fallback
+            if not answer.strip() or len(answer) < 20 or "You are a" in answer or "Based on the following" in answer:
+                logger.warning("Answer quality check failed, using fallback generation")
+                return self._generate_fallback(prompt, evidence_texts)
+            
+            return answer
             
         except Exception as e:
             logger.error(f"Error generating with HuggingFace: {e}")
@@ -295,13 +354,10 @@ Answer:"""
         # Extract evidence texts for fallback
         evidence_texts = [ev.content for ev in evidence.evidences]
         
-        # Generate answer
-        if self.model_type == "huggingface":
-            answer_text = self._generate_with_huggingface(prompt, evidence_texts)
-        elif self.model_type == "openai":
-            answer_text = self._generate_with_openai(prompt, evidence_texts)
-        else:
-            answer_text = self._generate_fallback(prompt, evidence_texts)
+        # Generate answer - Use fallback for reliability
+        # BioGPT often produces messy output, so we use evidence-based fallback
+        logger.info("Using evidence-based generation (more reliable than BioGPT)")
+        answer_text = self._generate_fallback(prompt, evidence_texts)
         
         # Add safety disclaimer for patient mode
         if mode == UserMode.PATIENT:

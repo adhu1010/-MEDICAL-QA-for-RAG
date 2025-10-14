@@ -94,7 +94,7 @@ class VectorRetriever:
         ids: Optional[List[str]] = None
     ) -> bool:
         """
-        Add documents to vector store
+        Add documents to vector store with automatic batching
         
         Args:
             documents: List of document texts
@@ -113,18 +113,37 @@ class VectorRetriever:
             if ids is None:
                 ids = [f"doc_{i}" for i in range(len(documents))]
             
-            # Generate embeddings
-            embeddings = [self.embed_text(doc) for doc in documents]
+            # Prepare metadatas
+            if metadatas is None:
+                metadatas = [{} for _ in documents]
             
-            # Add to collection
-            self.collection.add(
-                embeddings=embeddings,
-                documents=documents,
-                metadatas=metadatas or [{} for _ in documents],
-                ids=ids
-            )
+            # ChromaDB has a batch size limit (~5461), so process in batches
+            BATCH_SIZE = 5000
+            total_docs = len(documents)
             
-            logger.info(f"Added {len(documents)} documents to vector store")
+            logger.info(f"Adding {total_docs} documents in batches of {BATCH_SIZE}")
+            
+            for start_idx in range(0, total_docs, BATCH_SIZE):
+                end_idx = min(start_idx + BATCH_SIZE, total_docs)
+                batch_docs = documents[start_idx:end_idx]
+                batch_ids = ids[start_idx:end_idx]
+                batch_metadata = metadatas[start_idx:end_idx]
+                
+                # Generate embeddings for batch
+                logger.info(f"  Processing batch {start_idx//BATCH_SIZE + 1}: documents {start_idx+1} to {end_idx}")
+                batch_embeddings = [self.embed_text(doc) for doc in batch_docs]
+                
+                # Add batch to collection
+                self.collection.add(
+                    embeddings=batch_embeddings,
+                    documents=batch_docs,
+                    metadatas=batch_metadata,
+                    ids=batch_ids
+                )
+                
+                logger.info(f"  ✓ Batch {start_idx//BATCH_SIZE + 1} complete: {len(batch_docs)} documents added")
+            
+            logger.info(f"✓ Successfully added all {total_docs} documents to vector store")
             return True
             
         except Exception as e:

@@ -48,35 +48,6 @@
             padding: 40px;
         }
 
-        .mode-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
-
-        .mode-btn {
-            padding: 12px 30px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .mode-btn.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
         .input-section {
             margin-bottom: 30px;
         }
@@ -265,15 +236,10 @@
     <div class="container">
         <div class="header">
             <h1>🩺 Medical QA System</h1>
-            <p>Agentic RAG for Medical Question Answering</p>
+            <p>AI-Powered Medical Question Answering with Hybrid Retrieval</p>
         </div>
 
         <div class="content">
-            <div class="mode-selector">
-                <button class="mode-btn active" data-mode="patient">👤 Patient Mode</button>
-                <button class="mode-btn" data-mode="doctor">👨‍⚕️ Doctor Mode</button>
-            </div>
-
             <div class="input-section">
                 <label for="question">Ask a Medical Question:</label>
                 <textarea 
@@ -325,16 +291,6 @@
 
     <script>
         const API_URL = 'http://localhost:8000';
-        let currentMode = 'patient';
-
-        // Mode selection
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentMode = btn.dataset.mode;
-            });
-        });
 
         // Example questions
         document.querySelectorAll('.example-btn').forEach(btn => {
@@ -352,12 +308,16 @@
                 return;
             }
 
+            console.log('Submitting question:', question);
+
             // Show loading
             document.getElementById('loading').classList.add('show');
             document.getElementById('result').classList.remove('show');
             document.getElementById('submitBtn').disabled = true;
 
             try {
+                console.log('Making API request to:', `${API_URL}/api/ask`);
+                
                 const response = await fetch(`${API_URL}/api/ask`, {
                     method: 'POST',
                     headers: {
@@ -365,18 +325,29 @@
                     },
                     body: JSON.stringify({
                         question: question,
-                        mode: currentMode
+                        mode: 'patient'  // Always use patient mode (will be auto-detected by backend)
                     })
                 });
 
+                console.log('Response status:', response.status);
+                console.log('Response OK:', response.ok);
+
                 if (!response.ok) {
-                    throw new Error('Failed to get answer');
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error(`Server error: ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('Response data:', data);
+                console.log('Answer:', data.answer);
+                console.log('Sources:', data.sources);
+                console.log('Confidence:', data.confidence);
+                
                 displayResult(data);
 
             } catch (error) {
+                console.error('Error occurred:', error);
                 displayError(error.message);
             } finally {
                 document.getElementById('loading').classList.remove('show');
@@ -385,35 +356,53 @@
         });
 
         function displayResult(data) {
+            console.log('Displaying result with data:', data);
+            
             const resultSection = document.getElementById('result');
             const answerText = document.getElementById('answerText');
             const sourcesDiv = document.getElementById('sources');
             const metadataDiv = document.getElementById('metadata');
 
+            console.log('Result section element:', resultSection);
+            console.log('Answer text element:', answerText);
+
             resultSection.classList.remove('error');
             
             // Display answer
-            answerText.textContent = data.answer;
+            console.log('Setting answer text to:', data.answer);
+            answerText.textContent = data.answer || 'No answer provided';
 
             // Display sources
+            console.log('Displaying sources:', data.sources);
             sourcesDiv.innerHTML = '<div class="metadata-label">Sources:</div>';
-            data.sources.forEach(source => {
-                sourcesDiv.innerHTML += `<div class="source-item">📚 ${source}</div>`;
-            });
+            if (data.sources && data.sources.length > 0) {
+                data.sources.forEach(source => {
+                    sourcesDiv.innerHTML += `<div class="source-item">📚 ${source}</div>`;
+                });
+            } else {
+                sourcesDiv.innerHTML += '<div class="source-item">No sources available</div>';
+            }
 
             // Display metadata
+            console.log('Displaying metadata:', data.metadata);
             metadataDiv.innerHTML = `
                 <div class="metadata-item">
                     <div class="metadata-label">Confidence</div>
                     <div>${(data.confidence * 100).toFixed(1)}%</div>
                 </div>
                 <div class="metadata-item">
+                    <div class="metadata-label">Detected Mode</div>
+                    <div>${data.metadata?.detected_mode || 'patient'} ${
+                        (data.metadata?.detected_mode === 'doctor') ? '👨‍⚕️' : '👤'
+                    }</div>
+                </div>
+                <div class="metadata-item">
                     <div class="metadata-label">Strategy</div>
-                    <div>${data.metadata.retrieval_strategy}</div>
+                    <div>${data.metadata?.retrieval_strategy || 'N/A'}</div>
                 </div>
                 <div class="metadata-item">
                     <div class="metadata-label">Entities Found</div>
-                    <div>${data.metadata.entities_found}</div>
+                    <div>${data.metadata?.entities_found || 0}</div>
                 </div>
                 <div class="metadata-item">
                     <div class="metadata-label">Safety Check</div>
@@ -421,7 +410,9 @@
                 </div>
             `;
 
+            console.log('Showing result section');
             resultSection.classList.add('show');
+            console.log('Result section classes:', resultSection.className);
         }
 
         function displayError(message) {

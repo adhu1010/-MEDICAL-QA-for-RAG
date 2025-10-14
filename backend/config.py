@@ -82,13 +82,23 @@ class AgentConfig:
     # Retrieval strategies
     STRATEGY_KG_ONLY = "kg_only"
     STRATEGY_VECTOR_ONLY = "vector_only"
-    STRATEGY_HYBRID = "hybrid"
+    STRATEGY_SPARSE_ONLY = "sparse_only"
+    STRATEGY_DENSE_SPARSE = "dense_sparse"
+    STRATEGY_HYBRID = "hybrid"  # Legacy: KG + Dense
+    STRATEGY_FULL_HYBRID = "full_hybrid"  # KG + Dense + Sparse
     
     # Confidence thresholds
     KG_CONFIDENCE_THRESHOLD = 0.8
     VECTOR_CONFIDENCE_THRESHOLD = 0.7
-    FUSION_WEIGHT_KG = 0.6
-    FUSION_WEIGHT_VECTOR = 0.4
+    SPARSE_CONFIDENCE_THRESHOLD = 0.6
+    
+    # Fusion weights (for weighted fusion method)
+    FUSION_WEIGHT_KG = 0.5
+    FUSION_WEIGHT_VECTOR = 0.3  # Dense
+    FUSION_WEIGHT_SPARSE = 0.2  # BM25
+    
+    # RRF constant for Reciprocal Rank Fusion
+    RRF_K = 60  # Standard value used in literature
 
 
 agent_config = AgentConfig()
