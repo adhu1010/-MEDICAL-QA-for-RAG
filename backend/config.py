@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     openai_api_key: Optional[str] = Field(None, env="OPENAI_API_KEY")
     huggingface_api_key: Optional[str] = Field(None, env="HUGGINGFACE_API_KEY")
     
+    # PubMed API Configuration
+    pubmed_email: Optional[str] = Field(None, env="PUBMED_EMAIL")
+    pubmed_api_key: Optional[str] = Field(None, env="PUBMED_API_KEY")
+    pubmed_enabled: bool = Field(True, env="PUBMED_ENABLED")
+    pubmed_max_results: int = Field(5, env="PUBMED_MAX_RESULTS")
+    
     # Neo4j Configuration
     neo4j_uri: str = Field("bolt://localhost:7687", env="NEO4J_URI")
     neo4j_user: str = Field("neo4j", env="NEO4J_USER")
@@ -38,6 +44,7 @@ class Settings(BaseSettings):
     # Retrieval Settings
     top_k_vector: int = Field(5, env="TOP_K_VECTOR")
     top_k_kg: int = Field(3, env="TOP_K_KG")
+    top_k_pubmed: int = Field(5, env="TOP_K_PUBMED")
     similarity_threshold: float = Field(0.5, env="SIMILARITY_THRESHOLD")
     
     # Safety Settings
@@ -92,10 +99,15 @@ class AgentConfig:
     VECTOR_CONFIDENCE_THRESHOLD = 0.7
     SPARSE_CONFIDENCE_THRESHOLD = 0.6
     
+    # Fallback threshold - if combined confidence < 50%, retry with FULL_HYBRID
+    FALLBACK_CONFIDENCE_THRESHOLD = 0.5
+    ENABLE_HYBRID_FALLBACK = True  # Enable automatic fallback to hybrid strategy
+    
     # Fusion weights (for weighted fusion method)
-    FUSION_WEIGHT_KG = 0.5
-    FUSION_WEIGHT_VECTOR = 0.3  # Dense
-    FUSION_WEIGHT_SPARSE = 0.2  # BM25
+    FUSION_WEIGHT_KG = 0.4
+    FUSION_WEIGHT_VECTOR = 0.25  # Dense
+    FUSION_WEIGHT_SPARSE = 0.15  # BM25
+    FUSION_WEIGHT_PUBMED = 0.2  # Real-time literature
     
     # RRF constant for Reciprocal Rank Fusion
     RRF_K = 60  # Standard value used in literature

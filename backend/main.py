@@ -162,7 +162,9 @@ async def ask_medical_question(query: MedicalQuery):
                 "query_type": processed_query.query_type.value,
                 "detected_mode": final_mode.value,
                 "user_provided_mode": query.mode.value,
-                "safety_issues": safety_check.issues if not safety_check.is_safe else []
+                "safety_issues": safety_check.issues if not safety_check.is_safe else [],
+                # Include fallback information if applied
+                **fused_evidence.metadata  # Merge fallback metadata
             }
         )
         

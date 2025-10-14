@@ -74,6 +74,7 @@ class FusedEvidence(BaseModel):
     evidences: List[RetrievedEvidence]
     combined_confidence: float
     fusion_method: str
+    metadata: Dict[str, Any] = {}  # Metadata about fusion process (e.g., fallback info)
 
 
 class GeneratedAnswer(BaseModel):

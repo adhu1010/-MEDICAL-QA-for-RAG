@@ -9,7 +9,7 @@ from backend.models import (
     RetrievalStrategy
 )
 from backend.config import agent_config, settings
-from backend.retrievers import get_vector_retriever, get_kg_retriever, get_sparse_retriever
+from backend.retrievers import get_vector_retriever, get_kg_retriever, get_sparse_retriever, get_pubmed_retriever
 from backend.utils import calculate_weighted_confidence
 
 
@@ -23,7 +23,8 @@ class AgentController:
         self.vector_retriever = get_vector_retriever()
         self.kg_retriever = get_kg_retriever()
         self.sparse_retriever = get_sparse_retriever()
-        logger.info("Agent controller initialized with dense, sparse, and KG retrievers")
+        self.pubmed_retriever = get_pubmed_retriever()
+        logger.info("Agent controller initialized with dense, sparse, KG, and PubMed retrievers")
     
     def decide_strategy(self, query: ProcessedQuery) -> RetrievalStrategy:
         """
@@ -154,6 +155,16 @@ class AgentController:
             sparse_evidences = self.sparse_retriever.retrieve(query)
             evidences = kg_evidences + vector_evidences + sparse_evidences
         
+        # Optionally add PubMed if enabled (for research-backed answers)
+        if settings.pubmed_enabled and self.pubmed_retriever.enabled:
+            logger.info("Adding PubMed real-time literature retrieval")
+            try:
+                pubmed_evidences = self.pubmed_retriever.retrieve(query, top_k=settings.top_k_pubmed)
+                evidences.extend(pubmed_evidences)
+                logger.info(f"Added {len(pubmed_evidences)} PubMed articles")
+            except Exception as e:
+                logger.warning(f"PubMed retrieval failed: {e}")
+        
         logger.info(f"Retrieved {len(evidences)} total evidences")
         return evidences
     
@@ -183,6 +194,7 @@ class AgentController:
         kg_evidences = [e for e in evidences if e.source_type == "kg"]
         vector_evidences = [e for e in evidences if e.source_type == "vector"]
         sparse_evidences = [e for e in evidences if e.source_type == "sparse"]
+        pubmed_evidences = [e for e in evidences if e.source_type == "pubmed"]
         
         # Determine fusion method
         if sparse_evidences and vector_evidences:
@@ -204,6 +216,10 @@ class AgentController:
             for evidence in sparse_evidences:
                 evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_SPARSE', 0.5)
             
+            # PubMed literature weight
+            for evidence in pubmed_evidences:
+                evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_PUBMED', 0.5)
+            
             # Sort by adjusted confidence
             evidences.sort(key=lambda x: x.confidence, reverse=True)
         
@@ -216,7 +232,8 @@ class AgentController:
         
         logger.info(
             f"Fused evidence: {len(kg_evidences)} KG + {len(vector_evidences)} dense + "
-            f"{len(sparse_evidences)} sparse, combined confidence: {combined_confidence:.2f}"
+            f"{len(sparse_evidences)} sparse + {len(pubmed_evidences)} PubMed, "
+            f"combined confidence: {combined_confidence:.2f}"
         )
         
         return FusedEvidence(
@@ -229,6 +246,9 @@ class AgentController:
         """
         Main execution pipeline: decide strategy -> retrieve -> fuse
         
+        Includes intelligent fallback: if confidence < 50%, automatically
+        retries with FULL_HYBRID strategy for better results.
+        
         Args:
             query: ProcessedQuery
             
@@ -239,12 +259,53 @@ class AgentController:
         
         # Step 1: Decide strategy
         strategy = self.decide_strategy(query)
+        original_strategy = strategy
         
         # Step 2: Retrieve with chosen strategy
         evidences = self.retrieve_with_strategy(query, strategy)
         
         # Step 3: Fuse evidence
         fused = self.fuse_evidence(evidences, query)
+        
+        # Step 4: Check confidence and apply fallback if needed
+        if agent_config.ENABLE_HYBRID_FALLBACK:
+            confidence_threshold = agent_config.FALLBACK_CONFIDENCE_THRESHOLD
+            
+            if fused.combined_confidence < confidence_threshold:
+                logger.warning(
+                    f"Low confidence detected: {fused.combined_confidence:.2f} < {confidence_threshold:.2f}. "
+                    f"Original strategy: {original_strategy}"
+                )
+                
+                # Only retry if not already using FULL_HYBRID
+                if strategy != RetrievalStrategy.FULL_HYBRID:
+                    logger.info("Applying intelligent fallback: Retrying with FULL_HYBRID strategy")
+                    
+                    # Retry with FULL_HYBRID for comprehensive retrieval
+                    evidences = self.retrieve_with_strategy(query, RetrievalStrategy.FULL_HYBRID)
+                    fused = self.fuse_evidence(evidences, query)
+                    
+                    logger.info(
+                        f"Fallback complete. New confidence: {fused.combined_confidence:.2f} "
+                        f"(improved: {fused.combined_confidence >= confidence_threshold})"
+                    )
+                    
+                    # Add metadata about fallback
+                    if not hasattr(fused, 'metadata'):
+                        fused.metadata = {}
+                    fused.metadata['fallback_applied'] = True
+                    fused.metadata['original_strategy'] = str(original_strategy)
+                    fused.metadata['fallback_strategy'] = 'full_hybrid'
+                    fused.metadata['original_confidence'] = round(fused.combined_confidence, 2)
+                else:
+                    logger.warning(
+                        f"Already using FULL_HYBRID strategy. Cannot fallback further. "
+                        f"Confidence: {fused.combined_confidence:.2f}"
+                    )
+            else:
+                logger.info(
+                    f"Confidence acceptable: {fused.combined_confidence:.2f} >= {confidence_threshold:.2f}"
+                )
         
         logger.info(f"Agent execution complete with {len(fused.evidences)} evidences")
         
