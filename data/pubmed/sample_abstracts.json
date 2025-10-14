@@ -1,0 +1,44 @@
+[
+  {
+    "pmid": "12345678",
+    "title": "Efficacy and Safety of Metformin in Type 2 Diabetes",
+    "abstract": "Metformin is the first-line medication for type 2 diabetes. This meta-analysis of 100 studies shows that metformin effectively reduces HbA1c levels by 1-2% and has cardiovascular benefits. Common side effects include gastrointestinal disturbances in 20-30% of patients, which usually resolve with continued use.",
+    "authors": "Smith J, Johnson A, Williams B",
+    "journal": "Diabetes Care",
+    "year": 2022,
+    "keywords": [
+      "Metformin",
+      "Type 2 Diabetes",
+      "HbA1c",
+      "Cardiovascular"
+    ]
+  },
+  {
+    "pmid": "23456789",
+    "title": "Antibiotic Treatment Guidelines for Acute Bacterial Sinusitis",
+    "abstract": "Current guidelines recommend amoxicillin as first-line therapy for acute bacterial sinusitis in adults. Treatment duration should be 5-7 days for uncomplicated cases. Doxycycline or respiratory fluoroquinolones are alternatives for penicillin-allergic patients.",
+    "authors": "Brown C, Davis E, Miller F",
+    "journal": "Clinical Infectious Diseases",
+    "year": 2023,
+    "keywords": [
+      "Sinusitis",
+      "Antibiotics",
+      "Amoxicillin",
+      "Treatment Guidelines"
+    ]
+  },
+  {
+    "pmid": "34567890",
+    "title": "Mechanisms of Metformin Action Beyond Glucose Lowering",
+    "abstract": "Recent research reveals that metformin has pleiotropic effects beyond glycemic control, including anti-inflammatory properties, potential anti-cancer effects, and cardiovascular protection through AMPK activation and modulation of gut microbiota.",
+    "authors": "Garcia H, Martinez I, Lopez J",
+    "journal": "Nature Medicine",
+    "year": 2023,
+    "keywords": [
+      "Metformin",
+      "AMPK",
+      "Mechanism",
+      "Inflammation"
+    ]
+  }
+]

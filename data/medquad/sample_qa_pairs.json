@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What are the side effects of Metformin?",
+    "answer": "Common side effects of Metformin include nausea, vomiting, stomach upset, diarrhea, weakness, and a metallic taste in the mouth. Rarely, it may cause lactic acidosis, a serious condition. Always consult your doctor if you experience severe side effects.",
+    "focus": "Metformin",
+    "type": "side effects",
+    "category": "Diabetes",
+    "source": "NIH"
+  },
+  {
+    "question": "What is Type 2 Diabetes?",
+    "answer": "Type 2 diabetes is a chronic metabolic disorder characterized by high blood sugar levels due to insulin resistance and relative insulin deficiency. It typically develops in adulthood and is associated with obesity, lack of physical activity, and genetic factors.",
+    "focus": "Type 2 Diabetes",
+    "type": "definition",
+    "category": "Diabetes",
+    "source": "Mayo Clinic"
+  },
+  {
+    "question": "What is the best antibiotic for sinus infection?",
+    "answer": "Amoxicillin is commonly prescribed as a first-line antibiotic for bacterial sinusitis. However, doxycycline or macrolides (like azithromycin) may be alternatives for patients allergic to penicillin. The choice depends on the severity of infection and patient history.",
+    "focus": "Sinusitis treatment",
+    "type": "treatment",
+    "category": "Infections",
+    "source": "CDC Guidelines"
+  },
+  {
+    "question": "How does Metformin work?",
+    "answer": "Metformin works primarily by decreasing glucose production in the liver and improving insulin sensitivity in peripheral tissues. It also reduces glucose absorption in the intestines and may have beneficial effects on lipid metabolism.",
+    "focus": "Metformin mechanism",
+    "type": "mechanism",
+    "category": "Diabetes",
+    "source": "Medical Textbook"
+  },
+  {
+    "question": "What are the symptoms of sinusitis?",
+    "answer": "Common symptoms of sinusitis include facial pain or pressure, nasal congestion, thick nasal discharge (yellow or green), reduced sense of smell, cough, fatigue, and headache. Symptoms lasting more than 10 days may indicate bacterial infection.",
+    "focus": "Sinusitis",
+    "type": "symptoms",
+    "category": "Infections",
+    "source": "Mayo Clinic"
+  }
+]

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple API Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        button { padding: 10px 20px; font-size: 16px; }
+        #result { margin-top: 20px; padding: 20px; background: #f0f0f0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>API Test</h1>
+    <textarea id="question" placeholder="Enter question...">What are the side effects of Metformin?</textarea>
+    <br>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const question = document.getElementById('question').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, mode: 'patient' })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <h2>Answer:</h2>
+                    <p>${data.answer}</p>
+                    <h3>Details:</h3>
+                    <p>Confidence: ${(data.confidence * 100).toFixed(1)}%</p>
+                    <p>Sources: ${data.sources.length}</p>
+                    <p>Strategy: ${data.metadata.retrieval_strategy}</p>
+                    <h3>Full Response:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `ERROR: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

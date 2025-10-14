@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical RAG QA System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 12px 30px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-header {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .answer-text {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .metadata-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .metadata-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .sources {
+            margin-top: 15px;
+        }
+
+        .source-item {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #f44;
+            color: #c33;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .example-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Medical QA System</h1>
+            <p>Agentic RAG for Medical Question Answering</p>
+        </div>
+
+        <div class="content">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="patient">👤 Patient Mode</button>
+                <button class="mode-btn" data-mode="doctor">👨‍⚕️ Doctor Mode</button>
+            </div>
+
+            <div class="input-section">
+                <label for="question">Ask a Medical Question:</label>
+                <textarea 
+                    id="question" 
+                    class="question-input" 
+                    placeholder="e.g., What are the side effects of Metformin?"
+                ></textarea>
+            </div>
+
+            <button class="submit-btn" id="submitBtn">Get Answer</button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Processing your question...</p>
+            </div>
+
+            <div class="result-section" id="result">
+                <div class="result-header">Answer:</div>
+                <div class="answer-text" id="answerText"></div>
+                
+                <div class="sources" id="sources"></div>
+                
+                <div class="metadata" id="metadata"></div>
+            </div>
+
+            <div class="examples">
+                <h3>Example Questions:</h3>
+                <button class="example-btn" data-question="What are the side effects of Metformin?">
+                    What are the side effects of Metformin?
+                </button>
+                <button class="example-btn" data-question="What is the best antibiotic for sinus infection?">
+                    What is the best antibiotic for sinus infection?
+                </button>
+                <button class="example-btn" data-question="How does Metformin work?">
+                    How does Metformin work?
+                </button>
+                <button class="example-btn" data-question="What are the symptoms of sinusitis?">
+                    What are the symptoms of sinusitis?
+                </button>
+            </div>
+
+            <div class="disclaimer">
+                <strong>⚠️ Medical Disclaimer:</strong> This system is for educational and research purposes only. 
+                It is not a substitute for professional medical advice, diagnosis, or treatment. 
+                Always seek the advice of your physician or other qualified health provider with any questions you may have.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let currentMode = 'patient';
+
+        // Mode selection
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+            });
+        });
+
+        // Example questions
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('question').value = btn.dataset.question;
+            });
+        });
+
+        // Submit question
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const question = document.getElementById('question').value.trim();
+            
+            if (!question) {
+                alert('Please enter a question');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/api/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        mode: currentMode
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get answer');
+                }
+
+                const data = await response.json();
+                displayResult(data);
+
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        function displayResult(data) {
+            const resultSection = document.getElementById('result');
+            const answerText = document.getElementById('answerText');
+            const sourcesDiv = document.getElementById('sources');
+            const metadataDiv = document.getElementById('metadata');
+
+            resultSection.classList.remove('error');
+            
+            // Display answer
+            answerText.textContent = data.answer;
+
+            // Display sources
+            sourcesDiv.innerHTML = '<div class="metadata-label">Sources:</div>';
+            data.sources.forEach(source => {
+                sourcesDiv.innerHTML += `<div class="source-item">📚 ${source}</div>`;
+            });
+
+            // Display metadata
+            metadataDiv.innerHTML = `
+                <div class="metadata-item">
+                    <div class="metadata-label">Confidence</div>
+                    <div>${(data.confidence * 100).toFixed(1)}%</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Strategy</div>
+                    <div>${data.metadata.retrieval_strategy}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Entities Found</div>
+                    <div>${data.metadata.entities_found}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Safety Check</div>
+                    <div>${data.safety_validated ? '✅ Passed' : '⚠️ Issues'}</div>
+                </div>
+            `;
+
+            resultSection.classList.add('show');
+        }
+
+        function displayError(message) {
+            const resultSection = document.getElementById('result');
+            const answerText = document.getElementById('answerText');
+            
+            resultSection.classList.add('error');
+            answerText.textContent = `Error: ${message}\n\nPlease make sure the backend server is running on ${API_URL}`;
+            
+            document.getElementById('sources').innerHTML = '';
+            document.getElementById('metadata').innerHTML = '';
+            
+            resultSection.classList.add('show');
+        }
+
+        // Allow Enter to submit (Ctrl+Enter for new line)
+        document.getElementById('question').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.ctrlKey) {
+                e.preventDefault();
+                document.getElementById('submitBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>
