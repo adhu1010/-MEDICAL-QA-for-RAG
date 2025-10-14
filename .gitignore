@@ -41,6 +41,9 @@ models/
 huggingface/
 transformers_cache/
 
+# But include backend/models (Python code)
+!backend/models/
+
 # Logs
 logs/
 *.log

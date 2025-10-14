@@ -114,19 +114,23 @@ async def ask_medical_question(query: MedicalQuery):
         # Get components
         preprocessor, agent, generator, reflector = get_components()
         
-        # Step 1: Preprocess query
+        # Step 1: Preprocess query (auto-detects user mode)
         processed_query = preprocessor.process_query(query)
         logger.info(f"Query processed with {len(processed_query.entities)} entities")
+        logger.info(f"Auto-detected mode: {processed_query.detected_mode} (user provided: {query.mode})")
+        
+        # Use detected mode for better accuracy
+        final_mode = processed_query.detected_mode
         
         # Step 2: Agent retrieval
         fused_evidence = agent.execute(processed_query)
         logger.info(f"Retrieved {len(fused_evidence.evidences)} evidences")
         
-        # Step 3: Generate answer
+        # Step 3: Generate answer with auto-detected mode
         generated_answer = generator.generate(
             processed_query,
             fused_evidence,
-            mode=query.mode
+            mode=final_mode
         )
         logger.info("Answer generated")
         
@@ -135,7 +139,7 @@ async def ask_medical_question(query: MedicalQuery):
         safety_check = reflector.validate(
             generated_answer,
             evidence_texts,
-            is_patient_mode=(query.mode == UserMode.PATIENT)
+            is_patient_mode=(final_mode == UserMode.PATIENT)
         )
         
         # Apply corrections if needed
@@ -147,7 +151,7 @@ async def ask_medical_question(query: MedicalQuery):
         final_answer = MedicalAnswer(
             question=query.question,
             answer=generated_answer.answer,
-            mode=query.mode,
+            mode=final_mode,  # Use auto-detected mode
             sources=generated_answer.sources,
             confidence=generated_answer.confidence,
             safety_validated=safety_check.is_safe,
@@ -156,6 +160,8 @@ async def ask_medical_question(query: MedicalQuery):
                 "entities_found": len(processed_query.entities),
                 "evidence_count": len(fused_evidence.evidences),
                 "query_type": processed_query.query_type.value,
+                "detected_mode": final_mode.value,
+                "user_provided_mode": query.mode.value,
                 "safety_issues": safety_check.issues if not safety_check.is_safe else []
             }
         )

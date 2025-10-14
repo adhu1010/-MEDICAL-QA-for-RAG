@@ -13,7 +13,7 @@ from loguru import logger
 
 from backend.models import (
     MedicalEntity, ProcessedQuery, QueryType, 
-    RetrievalStrategy, MedicalQuery
+    RetrievalStrategy, MedicalQuery, UserMode
 )
 from backend.config import agent_config
 from backend.utils import clean_text, normalize_medical_term
@@ -169,6 +169,92 @@ class QueryPreprocessor:
         logger.info(f"Extracted {len(unique_entities)} entities using simple extraction")
         return unique_entities
     
+    def detect_user_mode(self, question: str) -> UserMode:
+        """
+        Automatically detect if question is from a medical professional or patient
+        
+        Args:
+            question: User's question
+            
+        Returns:
+            UserMode enum (DOCTOR or PATIENT)
+        """
+        question_lower = question.lower()
+        
+        # Medical professional indicators
+        doctor_keywords = [
+            # Medical terminology
+            'differential diagnosis', 'pathophysiology', 'contraindication',
+            'pharmacokinetics', 'pharmacodynamics', 'dosing regimen',
+            'clinical presentation', 'etiology', 'prognosis',
+            'therapeutic index', 'adverse reactions', 'drug interaction',
+            
+            # Clinical questions
+            'in patients with', 'management of', 'treatment protocol',
+            'clinical guidelines', 'evidence-based', 'first-line therapy',
+            'second-line', 'adjuvant therapy', 'mechanism of action',
+            
+            # Professional language
+            'recommended for patients', 'prescribe', 'clinical trial',
+            'efficacy', 'bioavailability', 'half-life',
+            'therapeutic range', 'monitoring parameters',
+            
+            # Specific professional phrases
+            'what should i prescribe', 'appropriate treatment',
+            'diagnostic criteria', 'comorbidities', 'patient presents with',
+            'lab values', 'workup', 'clinical manifestations'
+        ]
+        
+        # Patient-oriented indicators
+        patient_keywords = [
+            # Personal/lay language
+            'i have', 'i am', 'my', 'me', 'i feel', 'i\'ve been',
+            'should i', 'can i', 'is it safe for me',
+            
+            # Simple/lay terms
+            'in simple terms', 'explain simply', 'what does this mean',
+            'in plain english', 'easy to understand',
+            
+            # Patient concerns
+            'side effects', 'is it safe', 'will it help', 'how long',
+            'when should i', 'do i need', 'is this normal',
+            'should i worry', 'what can i do'
+        ]
+        
+        # Score based on keyword presence
+        doctor_score = sum(1 for keyword in doctor_keywords if keyword in question_lower)
+        patient_score = sum(1 for keyword in patient_keywords if keyword in question_lower)
+        
+        # Check for technical medical terminology (stronger indicator)
+        technical_terms = [
+            'pathophysiology', 'pharmacokinetics', 'contraindication',
+            'differential', 'etiology', 'therapeutic index',
+            'bioavailability', 'efficacy'
+        ]
+        
+        has_technical = any(term in question_lower for term in technical_terms)
+        
+        # Check for personal pronouns (stronger indicator of patient)
+        personal_phrases = ['i have', 'i am', 'my ', 'should i']
+        has_personal = any(phrase in question_lower for phrase in personal_phrases)
+        
+        # Decision logic
+        if has_technical:
+            logger.info("Detected medical professional mode (technical terminology)")
+            return UserMode.DOCTOR
+        
+        if has_personal:
+            logger.info("Detected patient mode (personal pronouns)")
+            return UserMode.PATIENT
+        
+        if doctor_score > patient_score and doctor_score >= 2:
+            logger.info(f"Detected medical professional mode (score: {doctor_score} vs {patient_score})")
+            return UserMode.DOCTOR
+        
+        # Default to patient mode for safety (simpler, more cautious language)
+        logger.info(f"Default to patient mode (score: doctor={doctor_score}, patient={patient_score})")
+        return UserMode.PATIENT
+    
     def detect_query_type(self, question: str) -> QueryType:
         """
         Classify the type of medical query
@@ -251,9 +337,17 @@ class QueryPreprocessor:
             query: MedicalQuery object
             
         Returns:
-            ProcessedQuery with entities and metadata
+            ProcessedQuery with entities, mode, and metadata
         """
         logger.info(f"Processing query: {query.question}")
+        
+        # Auto-detect user mode (can override manual mode if specified)
+        detected_mode = self.detect_user_mode(query.question)
+        
+        # Use provided mode if explicitly set, otherwise use detected mode
+        final_mode = query.mode if query.mode else detected_mode
+        
+        logger.info(f"Mode: provided={query.mode}, detected={detected_mode}, final={final_mode}")
         
         # Extract entities
         entities = self.extract_entities(query.question)
@@ -272,12 +366,13 @@ class QueryPreprocessor:
             normalized_question=normalized,
             entities=entities,
             query_type=query_type,
-            suggested_strategy=strategy
+            suggested_strategy=strategy,
+            detected_mode=final_mode
         )
         
         logger.info(
             f"Query processed - Type: {query_type}, "
-            f"Strategy: {strategy}, Entities: {len(entities)}"
+            f"Strategy: {strategy}, Mode: {final_mode}, Entities: {len(entities)}"
         )
         
         return processed
