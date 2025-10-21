@@ -9,7 +9,7 @@ from backend.models import (
     RetrievalStrategy
 )
 from backend.config import agent_config, settings
-from backend.retrievers import get_vector_retriever, get_kg_retriever, get_sparse_retriever, get_pubmed_retriever
+from backend.retrievers import get_vector_retriever, get_kg_retriever, get_sparse_retriever
 from backend.utils import calculate_weighted_confidence
 
 
@@ -23,8 +23,7 @@ class AgentController:
         self.vector_retriever = get_vector_retriever()
         self.kg_retriever = get_kg_retriever()
         self.sparse_retriever = get_sparse_retriever()
-        self.pubmed_retriever = get_pubmed_retriever()
-        logger.info("Agent controller initialized with dense, sparse, KG, and PubMed retrievers")
+        logger.info("Agent controller initialized with dense, sparse, and KG retrievers")
     
     def decide_strategy(self, query: ProcessedQuery) -> RetrievalStrategy:
         """
@@ -155,16 +154,6 @@ class AgentController:
             sparse_evidences = self.sparse_retriever.retrieve(query)
             evidences = kg_evidences + vector_evidences + sparse_evidences
         
-        # Optionally add PubMed if enabled (for research-backed answers)
-        if settings.pubmed_enabled and self.pubmed_retriever.enabled:
-            logger.info("Adding PubMed real-time literature retrieval")
-            try:
-                pubmed_evidences = self.pubmed_retriever.retrieve(query, top_k=settings.top_k_pubmed)
-                evidences.extend(pubmed_evidences)
-                logger.info(f"Added {len(pubmed_evidences)} PubMed articles")
-            except Exception as e:
-                logger.warning(f"PubMed retrieval failed: {e}")
-        
         logger.info(f"Retrieved {len(evidences)} total evidences")
         return evidences
     
@@ -194,7 +183,16 @@ class AgentController:
         kg_evidences = [e for e in evidences if e.source_type == "kg"]
         vector_evidences = [e for e in evidences if e.source_type == "vector"]
         sparse_evidences = [e for e in evidences if e.source_type == "sparse"]
-        pubmed_evidences = [e for e in evidences if e.source_type == "pubmed"]
+        
+        # Skip fusion if no evidences at all
+        if not kg_evidences and not vector_evidences and not sparse_evidences:
+            logger.warning("No evidences from any source")
+            return FusedEvidence(
+                evidences=[],
+                combined_confidence=0.0,
+                fusion_method="none",
+                metadata={}
+            )
         
         # Determine fusion method
         if sparse_evidences and vector_evidences:
@@ -205,20 +203,21 @@ class AgentController:
             # Use weighted fusion for other combinations
             fusion_method = "weighted_fusion"
             
-            # Apply fusion weights
-            for evidence in kg_evidences:
-                evidence.confidence *= agent_config.FUSION_WEIGHT_KG
+            # Apply fusion weights only to non-empty sources
+            if kg_evidences:
+                for evidence in kg_evidences:
+                    evidence.confidence *= agent_config.FUSION_WEIGHT_KG
+                logger.info(f"Applied KG weight to {len(kg_evidences)} evidences")
             
-            for evidence in vector_evidences:
-                evidence.confidence *= agent_config.FUSION_WEIGHT_VECTOR
+            if vector_evidences:
+                for evidence in vector_evidences:
+                    evidence.confidence *= agent_config.FUSION_WEIGHT_VECTOR
+                logger.info(f"Applied Vector weight to {len(vector_evidences)} evidences")
             
-            # Sparse uses default weight of 1.0
-            for evidence in sparse_evidences:
-                evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_SPARSE', 0.5)
-            
-            # PubMed literature weight
-            for evidence in pubmed_evidences:
-                evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_PUBMED', 0.5)
+            if sparse_evidences:
+                for evidence in sparse_evidences:
+                    evidence.confidence *= getattr(agent_config, 'FUSION_WEIGHT_SPARSE', 0.5)
+                logger.info(f"Applied Sparse weight to {len(sparse_evidences)} evidences")
             
             # Sort by adjusted confidence
             evidences.sort(key=lambda x: x.confidence, reverse=True)
@@ -232,8 +231,7 @@ class AgentController:
         
         logger.info(
             f"Fused evidence: {len(kg_evidences)} KG + {len(vector_evidences)} dense + "
-            f"{len(sparse_evidences)} sparse + {len(pubmed_evidences)} PubMed, "
-            f"combined confidence: {combined_confidence:.2f}"
+            f"{len(sparse_evidences)} sparse, combined confidence: {combined_confidence:.2f}"
         )
         
         return FusedEvidence(
@@ -264,7 +262,12 @@ class AgentController:
         # Step 2: Retrieve with chosen strategy
         evidences = self.retrieve_with_strategy(query, strategy)
         
-        # Step 3: Fuse evidence
+        # Step 3: Pre-fusion confidence check and fuse evidence
+        # Compute pre-fusion average confidence from initial evidences
+        pre_fusion_confidence = 0.0
+        if evidences:
+            pre_fusion_confidence = sum(e.confidence for e in evidences) / len(evidences)
+        logger.info(f"Pre-fusion confidence (initial strategy): {pre_fusion_confidence:.2f}")
         fused = self.fuse_evidence(evidences, query)
         
         # Step 4: Check confidence and apply fallback if needed
@@ -281,9 +284,10 @@ class AgentController:
                 if strategy != RetrievalStrategy.FULL_HYBRID:
                     logger.info("Applying intelligent fallback: Retrying with FULL_HYBRID strategy")
                     
-                    # Retry with FULL_HYBRID for comprehensive retrieval
-                    evidences = self.retrieve_with_strategy(query, RetrievalStrategy.FULL_HYBRID)
-                    fused = self.fuse_evidence(evidences, query)
+                    # Retrieve with FULL_HYBRID and combine with initial evidences
+                    hybrid_evidences = self.retrieve_with_strategy(query, RetrievalStrategy.FULL_HYBRID)
+                    combined_evidences = evidences + hybrid_evidences
+                    fused = self.fuse_evidence(combined_evidences, query)
                     
                     logger.info(
                         f"Fallback complete. New confidence: {fused.combined_confidence:.2f} "
@@ -296,7 +300,7 @@ class AgentController:
                     fused.metadata['fallback_applied'] = True
                     fused.metadata['original_strategy'] = str(original_strategy)
                     fused.metadata['fallback_strategy'] = 'full_hybrid'
-                    fused.metadata['original_confidence'] = round(fused.combined_confidence, 2)
+                    fused.metadata['pre_fusion_confidence'] = round(pre_fusion_confidence, 2)
                 else:
                     logger.warning(
                         f"Already using FULL_HYBRID strategy. Cannot fallback further. "

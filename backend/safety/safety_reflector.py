@@ -2,11 +2,19 @@
 Safety reflection and validation layer
 """
 import re
-from typing import List
+from typing import List, Optional
 from loguru import logger
 
-from backend.models import GeneratedAnswer, SafetyCheck
+from backend.models import GeneratedAnswer, SafetyCheck, UserMode
 from backend.config import settings
+
+# Import models at the top level to avoid circular imports
+try:
+    from backend.models import ProcessedQuery, FusedEvidence
+except ImportError:
+    # Define placeholders for type hints
+    ProcessedQuery = object
+    FusedEvidence = object
 
 
 class SafetyReflector:
@@ -260,9 +268,58 @@ class SafetyReflector:
             answer=corrected_text,
             confidence=answer.confidence * 0.8,  # Reduce confidence due to corrections
             sources=answer.sources,
-            reasoning=answer.reasoning + " [Safety corrections applied]"
+            reasoning=(answer.reasoning or "") + " [Safety corrections applied]"
         )
 
+    def generate_safe_answer_without_citations(
+        self,
+        query,
+        evidence,
+        mode: UserMode,
+        original_answer: GeneratedAnswer
+    ) -> GeneratedAnswer:
+        """
+        Generate a safe answer without citations when the original answer has safety issues.
+        
+        This method is used when citations need to be removed to create a safer answer.
+        
+        Args:
+            query: Processed query
+            evidence: Fused evidence
+            mode: User mode
+            original_answer: Original generated answer
+            
+        Returns:
+            Safe answer without citations
+        """
+        logger.info("Generating safe answer without citations")
+        
+        try:
+            # Import here to avoid circular imports
+            from backend.generators import get_answer_generator
+            
+            # Get answer generator
+            generator = get_answer_generator(model_type="huggingface")
+            
+            # Generate answer without citations
+            safe_answer = generator.generate_without_citations(query, evidence, mode)
+            
+            # Update reasoning to indicate citations were removed for safety
+            safe_answer.reasoning = (original_answer.reasoning or "") + " [Citations removed for safety]"
+            safe_answer.confidence = original_answer.confidence * 0.9  # Slightly reduce confidence
+            
+            logger.info("Successfully generated safe answer without citations")
+            return safe_answer
+            
+        except Exception as e:
+            logger.error(f"Error generating safe answer without citations: {e}")
+            # Fallback to corrected original answer
+            return GeneratedAnswer(
+                answer=original_answer.answer,
+                confidence=original_answer.confidence * 0.7,  # Further reduce confidence
+                sources=original_answer.sources,
+                reasoning=(original_answer.reasoning or "") + " [Safety mode - minimal corrections applied]"
+            )
 
 # Singleton instance
 _reflector_instance = None

@@ -13,18 +13,22 @@ from backend.utils import normalize_medical_term
 class KnowledgeGraphRetriever:
     """Handles retrieval from medical knowledge graph"""
     
-    def __init__(self, use_neo4j: bool = False):
+    def __init__(self, use_neo4j: Optional[bool] = None):
         """
         Initialize KG retriever
         
         Args:
-            use_neo4j: If True, use Neo4j; otherwise use NetworkX
+            use_neo4j: If True, use Neo4j; if False, use NetworkX; if None, read from settings.NEO4J_ENABLED
         """
-        self.use_neo4j = use_neo4j
+        # Determine backend from argument or settings
+        if use_neo4j is None:
+            self.use_neo4j = getattr(settings, "neo4j_enabled", False)
+        else:
+            self.use_neo4j = use_neo4j
         self.graph = None
         self.neo4j_driver = None
         
-        if use_neo4j:
+        if self.use_neo4j:
             self._init_neo4j()
         else:
             self._init_networkx()

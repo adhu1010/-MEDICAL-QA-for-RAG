@@ -49,6 +49,10 @@ def start_backend():
     logger.info("\n🚀 Starting backend server...")
     logger.info("Press Ctrl+C to stop\n")
     
+    # Ensure we run uvicorn from the project root so 'backend' is importable
+    project_root = Path(__file__).parent.parent
+    logger.info(f"Working directory: {project_root}")
+    
     try:
         subprocess.run([
             sys.executable,
@@ -58,7 +62,7 @@ def start_backend():
             "--reload",
             "--host", "0.0.0.0",
             "--port", "8000"
-        ])
+        ], cwd=str(project_root))
     except KeyboardInterrupt:
         logger.info("\n\n✓ Server stopped")
 

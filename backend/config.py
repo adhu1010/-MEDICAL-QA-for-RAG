@@ -15,13 +15,8 @@ class Settings(BaseSettings):
     openai_api_key: Optional[str] = Field(None, env="OPENAI_API_KEY")
     huggingface_api_key: Optional[str] = Field(None, env="HUGGINGFACE_API_KEY")
     
-    # PubMed API Configuration
-    pubmed_email: Optional[str] = Field(None, env="PUBMED_EMAIL")
-    pubmed_api_key: Optional[str] = Field(None, env="PUBMED_API_KEY")
-    pubmed_enabled: bool = Field(True, env="PUBMED_ENABLED")
-    pubmed_max_results: int = Field(5, env="PUBMED_MAX_RESULTS")
-    
     # Neo4j Configuration
+    neo4j_enabled: bool = Field(False, env="NEO4J_ENABLED")
     neo4j_uri: str = Field("bolt://localhost:7687", env="NEO4J_URI")
     neo4j_user: str = Field("neo4j", env="NEO4J_USER")
     neo4j_password: str = Field("password", env="NEO4J_PASSWORD")
@@ -36,15 +31,17 @@ class Settings(BaseSettings):
     log_file: Path = Field(default_factory=lambda: Path("./logs/app.log"))
     
     # Model Configuration
-    embedding_model: str = Field("dmis-lab/biobert-base-cased-v1.2", env="EMBEDDING_MODEL")
+    embedding_model: str = Field("./models/biobert-base-cased-v1.2", env="EMBEDDING_MODEL")
     llm_model: str = Field("microsoft/BioGPT-Large", env="LLM_MODEL")  # BioGPT for medical domain
     llm_temperature: float = Field(0.3, env="LLM_TEMPERATURE")
     llm_max_tokens: int = Field(512, env="LLM_MAX_TOKENS")
     
+    # Offline settings
+    transformers_offline: bool = Field(False, env="TRANSFORMERS_OFFLINE")
+    
     # Retrieval Settings
     top_k_vector: int = Field(5, env="TOP_K_VECTOR")
     top_k_kg: int = Field(3, env="TOP_K_KG")
-    top_k_pubmed: int = Field(5, env="TOP_K_PUBMED")
     similarity_threshold: float = Field(0.5, env="SIMILARITY_THRESHOLD")
     
     # Safety Settings
@@ -61,7 +58,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
     
     class Config:
-        env_file = ".env"
+        env_file = str(Path(__file__).parent.parent / ".env")
         env_file_encoding = "utf-8"
         case_sensitive = False
     
@@ -104,10 +101,9 @@ class AgentConfig:
     ENABLE_HYBRID_FALLBACK = True  # Enable automatic fallback to hybrid strategy
     
     # Fusion weights (for weighted fusion method)
-    FUSION_WEIGHT_KG = 0.4
-    FUSION_WEIGHT_VECTOR = 0.25  # Dense
-    FUSION_WEIGHT_SPARSE = 0.15  # BM25
-    FUSION_WEIGHT_PUBMED = 0.2  # Real-time literature
+    FUSION_WEIGHT_KG = 0.5
+    FUSION_WEIGHT_VECTOR = 0.3  # Dense
+    FUSION_WEIGHT_SPARSE = 0.2  # BM25
     
     # RRF constant for Reciprocal Rank Fusion
     RRF_K = 60  # Standard value used in literature

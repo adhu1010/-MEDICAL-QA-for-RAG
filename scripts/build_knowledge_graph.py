@@ -29,7 +29,7 @@ def load_disease_ontology():
     logger.info("Loading Disease Ontology")
     
     # Try to load processed Disease Ontology
-    do_file = Path("../data/disease_ontology_processed.json")
+    do_file = Path("C:\\Users\\eahkf\\AppData\\Roaming\\Qoder\\User\\globalStorage\\alefragnani.project-manager\\data\\disease_ontology_processed.json")
     
     knowledge_triples = []
     
@@ -133,6 +133,8 @@ def load_sample_umls_concepts():
 def build_knowledge_graph():
     """Build the knowledge graph"""
     logger.info("Building knowledge graph")
+    
+
     
     # Get KG retriever
     kg_retriever = get_kg_retriever()

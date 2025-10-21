@@ -145,7 +145,32 @@ async def ask_medical_question(query: MedicalQuery):
         # Apply corrections if needed
         if not safety_check.is_safe:
             logger.warning(f"Safety issues detected: {safety_check.issues}")
-            generated_answer = reflector.apply_corrections(generated_answer, safety_check)
+            # Check if the issues are related to citations or sources
+            safety_issues = " ".join(safety_check.issues).lower()
+            if "citation" in safety_issues or "source" in safety_issues or "not found in evidence" in safety_issues:
+                # Generate a safe answer without citations
+                logger.info("Generating safe answer without citations")
+                try:
+                    generated_answer = reflector.generate_safe_answer_without_citations(
+                        processed_query,
+                        fused_evidence,
+                        final_mode,
+                        generated_answer
+                    )
+                    # Re-validate the new answer
+                    evidence_texts = [ev.content for ev in fused_evidence.evidences]
+                    safety_check = reflector.validate(
+                        generated_answer,
+                        evidence_texts,
+                        is_patient_mode=(final_mode == UserMode.PATIENT)
+                    )
+                except Exception as e:
+                    logger.error(f"Error generating safe answer without citations: {e}")
+                    # Fallback to applying corrections
+                    generated_answer = reflector.apply_corrections(generated_answer, safety_check)
+            else:
+                # Apply standard corrections
+                generated_answer = reflector.apply_corrections(generated_answer, safety_check)
         
         # Step 5: Format final answer
         final_answer = MedicalAnswer(
