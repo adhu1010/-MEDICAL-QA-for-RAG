@@ -24,9 +24,9 @@ User Query → NER/Preprocessing → Agent Decision → Retrieval (Vector + KG)
 
 - **Backend**: FastAPI
 - **Vector DB**: ChromaDB with FAISS
-- **Knowledge Graph**: Neo4j / NetworkX
-- **Embeddings**: BioBERT / MediBERT
-- **LLM**: BioGPT / FLAN-T5 / OpenAI API
+- **Knowledge Graph**: Neo4j 
+- **Embeddings**: BioBERT 
+- **LLM**: BioGPT 
 - **NER**: scispaCy + UMLS
 - **Agent Framework**: LangChain
 - **Safety**: Guardrails AI
