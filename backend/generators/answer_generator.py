@@ -249,8 +249,17 @@ Answer:"""
                         answer_text = answer_text.split("Instructions:")[0].strip()
                         logger.info("Removed 'Instructions:' fragment")
                     
-                    # Remove special tags like </s>,  etc.
+                    # Remove special tags and XML-like artifacts
                     answer_text = answer_text.replace("</s>", "").replace("", "").strip()
+                    answer_text = answer_text.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
+                    answer_text = answer_text.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
+                    answer_text = answer_text.replace("▃", "").strip()
+                    
+                    # Remove any remaining prompt-like fragments
+                    prompt_indicators = ["You are a", "Based on the following", "Instructions:", "Evidence:"]
+                    for indicator in prompt_indicators:
+                        if indicator in answer_text:
+                            answer_text = answer_text.split(indicator)[0].strip()
                     
                     answer = answer_text
                     logger.info(f"Cleaned answer length: {len(answer)} chars")
@@ -269,7 +278,10 @@ Answer:"""
                     clean_sentences = []
                     for sent in sentences:
                         # Skip sentences that look like prompt artifacts
-                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following"]):
+                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following", "You are a"]):
+                            continue
+                        # Skip sentences with XML artifacts
+                        if any(artifact in sent for artifact in ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃"]):
                             continue
                         clean_sentences.append(sent)
                         if len(clean_sentences) >= 3:  # Take first 3-4 sentences
@@ -279,11 +291,21 @@ Answer:"""
                         answer += "."
                     logger.info(f"Extracted {len(clean_sentences)} clean sentences")
             
+            # Additional cleanup for all models
+            # Remove any remaining special tokens or artifacts
+            answer = answer.replace("</s>", "").replace("", "").strip()
+            answer = answer.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
+            answer = answer.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
+            answer = answer.replace("▃", "").strip()
+            
+            # Remove extra whitespace and newlines
+            answer = " ".join(answer.split())
+            
             logger.info(f"Final answer length: {len(answer)} chars")
             logger.debug(f"Final answer preview: {answer[:200]}...")
             
             # If answer is still messy or contains prompt artifacts, use fallback
-            if not answer.strip() or len(answer) < 20 or "You are a" in answer or "Based on the following" in answer:
+            if not answer.strip() or len(answer) < 10 or "You are a" in answer or "Based on the following" in answer or "<FREETEXT>" in answer or "<ABSTRACT>" in answer:
                 logger.warning("Answer quality check failed, using fallback generation")
                 return self._generate_fallback(prompt, evidence_texts or [])
             
@@ -495,8 +517,17 @@ Answer:"""
                         answer_text = answer_text.split("Instructions:")[0].strip()
                         logger.info("Removed 'Instructions:' fragment")
                     
-                    # Remove special tags like </s>,  etc.
+                    # Remove special tags and XML-like artifacts
                     answer_text = answer_text.replace("</s>", "").replace("", "").strip()
+                    answer_text = answer_text.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
+                    answer_text = answer_text.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
+                    answer_text = answer_text.replace("▃", "").strip()
+                    
+                    # Remove any remaining prompt-like fragments
+                    prompt_indicators = ["You are a", "Based on the following", "Instructions:", "Evidence:"]
+                    for indicator in prompt_indicators:
+                        if indicator in answer_text:
+                            answer_text = answer_text.split(indicator)[0].strip()
                     
                     answer = answer_text
                     logger.info(f"Cleaned answer length: {len(answer)} chars")
@@ -515,7 +546,10 @@ Answer:"""
                     clean_sentences = []
                     for sent in sentences:
                         # Skip sentences that look like prompt artifacts
-                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following"]):
+                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following", "You are a"]):
+                            continue
+                        # Skip sentences with XML artifacts
+                        if any(artifact in sent for artifact in ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃"]):
                             continue
                         clean_sentences.append(sent)
                         if len(clean_sentences) >= 3:  # Take first 3-4 sentences
@@ -525,11 +559,21 @@ Answer:"""
                         answer += "."
                     logger.info(f"Extracted {len(clean_sentences)} clean sentences")
             
+            # Additional cleanup for all models
+            # Remove any remaining special tokens or artifacts
+            answer = answer.replace("</s>", "").replace("", "").strip()
+            answer = answer.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
+            answer = answer.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
+            answer = answer.replace("▃", "").strip()
+            
+            # Remove extra whitespace and newlines
+            answer = " ".join(answer.split())
+            
             logger.info(f"Final answer length: {len(answer)} chars")
             logger.debug(f"Final answer preview: {answer[:200]}...")
             
             # If answer is still messy or contains prompt artifacts, use fallback
-            if not answer.strip() or len(answer) < 20 or "You are a" in answer or "Based on the following" in answer:
+            if not answer.strip() or len(answer) < 10 or "You are a" in answer or "Based on the following" in answer or "<FREETEXT>" in answer or "<ABSTRACT>" in answer:
                 logger.warning("Answer quality check failed, using fallback generation")
                 return self._generate_fallback(prompt, evidence_texts or [])
             

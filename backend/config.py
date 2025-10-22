@@ -101,9 +101,10 @@ class AgentConfig:
     ENABLE_HYBRID_FALLBACK = True  # Enable automatic fallback to hybrid strategy
     
     # Fusion weights (for weighted fusion method)
-    FUSION_WEIGHT_KG = 0.5
-    FUSION_WEIGHT_VECTOR = 0.3  # Dense
-    FUSION_WEIGHT_SPARSE = 0.2  # BM25
+    # Adjusted to give more weight to vector results while maintaining balance
+    FUSION_WEIGHT_KG = 0.4
+    FUSION_WEIGHT_VECTOR = 0.5  # Increased from 0.3 to 0.5
+    FUSION_WEIGHT_SPARSE = 0.1  # Decreased from 0.2 to 0.1
     
     # RRF constant for Reciprocal Rank Fusion
     RRF_K = 60  # Standard value used in literature

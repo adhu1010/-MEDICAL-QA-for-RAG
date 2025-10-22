@@ -176,6 +176,9 @@ class SafetyReflector:
             
             if "not found in evidence" in issue:
                 suggestions.append("Remove or verify claims not supported by retrieved evidence")
+            
+            if "messy output" in issue or "prompt fragments" in issue:
+                suggestions.append("Clean up output artifacts and remove prompt fragments")
         
         return suggestions
     
@@ -210,12 +213,22 @@ class SafetyReflector:
         all_issues.extend(self.check_hallucination_indicators(answer.answer))
         all_issues.extend(self.check_evidence_alignment(answer.answer, evidence_texts))
         
+        # Additional check for messy output artifacts
+        messy_artifacts = ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃", "</s>"]
+        if any(artifact in answer.answer for artifact in messy_artifacts):
+            all_issues.append("Answer contains messy output artifacts that should be cleaned")
+        
+        # Check for prompt fragments
+        prompt_fragments = ["You are a", "Based on the following", "Instructions:", "Evidence:", "Question:"]
+        if any(fragment in answer.answer for fragment in prompt_fragments):
+            all_issues.append("Answer contains prompt fragments that should be removed")
+        
         # Generate suggestions
         suggestions = self.suggest_improvements(all_issues)
         
         # Determine if safe
         # Critical issues make it unsafe
-        critical_keywords = ["harmful", "not found in evidence"]
+        critical_keywords = ["harmful", "not found in evidence", "messy output", "prompt fragments"]
         has_critical_issue = any(
             any(keyword in issue.lower() for keyword in critical_keywords)
             for issue in all_issues
