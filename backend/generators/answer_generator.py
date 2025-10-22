@@ -198,123 +198,79 @@ Answer:"""
             return self._generate_fallback(prompt, evidence_texts or [])
         
         try:
+            # Tokenize inputs
             inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
-            
-            # Check if it's a seq2seq model (FLAN-T5) or causal LM (BioGPT)
+
+            # Build generation kwargs
+            gen_kwargs = {
+                'temperature': settings.llm_temperature,
+                'top_p': 0.9,
+            }
+            eos_id = getattr(self.tokenizer, 'eos_token_id', None)
+            if eos_id is not None:
+                gen_kwargs['eos_token_id'] = eos_id
+
+            # Use model-appropriate generation parameters
             if "flan" in settings.llm_model.lower() or "t5" in settings.llm_model.lower():
-                # For seq2seq models, use generate directly
-                # Type ignore for HuggingFace generate method
+                # Seq2seq models: use max_length
+                gen_kwargs.update({
+                    'max_length': settings.llm_max_tokens,
+                    'do_sample': True
+                })
                 outputs = self.model.generate(  # type: ignore
                     **inputs,
-                    max_length=settings.llm_max_tokens,
-                    temperature=settings.llm_temperature,
-                    do_sample=True,
-                    top_p=0.9
+                    **gen_kwargs
                 )
             else:
-                # For causal LM models
-                # Type ignore for HuggingFace generate method
+                # Causal models: request only new tokens
+                gen_kwargs.update({
+                    'max_new_tokens': settings.llm_max_tokens,
+                    'do_sample': True
+                })
                 outputs = self.model.generate(  # type: ignore
                     **inputs,
-                    max_new_tokens=settings.llm_max_tokens,
-                    temperature=settings.llm_temperature,
-                    do_sample=True,
-                    top_p=0.9
+                    **gen_kwargs
                 )
-            
-            answer = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            
-            logger.info(f"BioGPT raw output length: {len(answer)} chars")
-            logger.debug(f"BioGPT raw output: {answer[:500]}...")  # First 500 chars
-            
-            # For causal models, extract answer after the prompt
-            if "biogpt" in settings.llm_model.lower():
-                # Try to find "Answer:" marker and extract text after it
-                if "Answer:" in answer:
-                    # Split on "Answer:" and take the last part
-                    parts = answer.split("Answer:")
-                    answer_text = parts[-1].strip()
-                    
-                    logger.info(f"Found 'Answer:' marker, extracted {len(answer_text)} chars")
-                    
-                    # Clean up common issues
-                    # Remove any leftover prompt fragments
-                    if "Question:" in answer_text:
-                        answer_text = answer_text.split("Question:")[0].strip()
-                        logger.info("Removed 'Question:' fragment")
-                    if "Evidence:" in answer_text:
-                        answer_text = answer_text.split("Evidence:")[0].strip()
-                        logger.info("Removed 'Evidence:' fragment")
-                    if "Instructions:" in answer_text:
-                        answer_text = answer_text.split("Instructions:")[0].strip()
-                        logger.info("Removed 'Instructions:' fragment")
-                    
-                    # Remove special tags and XML-like artifacts
-                    answer_text = answer_text.replace("</s>", "").replace("", "").strip()
-                    answer_text = answer_text.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
-                    answer_text = answer_text.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
-                    answer_text = answer_text.replace("▃", "").strip()
-                    
-                    # Remove any remaining prompt-like fragments
-                    prompt_indicators = ["You are a", "Based on the following", "Instructions:", "Evidence:"]
-                    for indicator in prompt_indicators:
-                        if indicator in answer_text:
-                            answer_text = answer_text.split(indicator)[0].strip()
-                    
-                    answer = answer_text
-                    logger.info(f"Cleaned answer length: {len(answer)} chars")
+
+            # Decode only the new tokens (avoid echoing prompt)
+            try:
+                input_ids = inputs.get('input_ids', None)
+                input_len = input_ids.shape[1] if input_ids is not None else 0
+            except Exception:
+                input_len = 0
+
+            generated_ids = outputs[0]
+            try:
+                if generated_ids.shape[1] > input_len:
+                    gen_only = generated_ids[:, input_len:]
                 else:
-                    logger.warning("No 'Answer:' marker found, trying direct prompt removal")
-                    # If no "Answer:" marker, try removing the prompt directly
-                    if prompt in answer:
-                        answer = answer.replace(prompt, "").strip()
-                        logger.info(f"Removed prompt, remaining: {len(answer)} chars")
-                    
-                # Final cleanup: take only the first paragraph/sentence if it's too messy
-                if len(answer) > 1000:  # If too long, likely includes prompt
-                    logger.warning(f"Answer too long ({len(answer)} chars), extracting first sentences")
-                    # Take first reasonable chunk
-                    sentences = answer.split(". ")
-                    clean_sentences = []
-                    for sent in sentences:
-                        # Skip sentences that look like prompt artifacts
-                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following", "You are a"]):
-                            continue
-                        # Skip sentences with XML artifacts
-                        if any(artifact in sent for artifact in ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃"]):
-                            continue
-                        clean_sentences.append(sent)
-                        if len(clean_sentences) >= 3:  # Take first 3-4 sentences
-                            break
-                    answer = ". ".join(clean_sentences)
-                    if answer and not answer.endswith("."):
-                        answer += "."
-                    logger.info(f"Extracted {len(clean_sentences)} clean sentences")
-            
-            # Additional cleanup for all models
-            # Remove any remaining special tokens or artifacts
+                    gen_only = generated_ids
+            except Exception:
+                gen_only = generated_ids
+
+            answer = self.tokenizer.decode(gen_only[0], skip_special_tokens=True)
+
+            logger.info(f"BioGPT raw output length: {len(answer)} chars")
+            logger.debug(f"BioGPT raw output: {answer[:500]}...")
+
+            # Post-cleaning similar to previous logic: extract after Answer: if present
+            if "biogpt" in settings.llm_model.lower() and "Answer:" in answer:
+                parts = answer.split("Answer:")
+                answer = parts[-1].strip()
+
+            # General cleanup of artifacts
             answer = answer.replace("</s>", "").replace("", "").strip()
             answer = answer.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
             answer = answer.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
             answer = answer.replace("▃", "").strip()
-            
-            # Remove extra whitespace and newlines
             answer = " ".join(answer.split())
-            
-            # Remove constraint text if it somehow got included
-            if "Constraints: Provide a detailed medical answer in 30-40 words" in answer:
-                answer = answer.replace("Constraints: Provide a detailed medical answer in 30-40 words", "").strip()
-            
-            logger.info(f"Final answer length: {len(answer)} chars")
-            logger.debug(f"Final answer preview: {answer[:200]}...")
-            
-            # If answer is still messy or contains prompt artifacts, use fallback
-            if not answer.strip() or len(answer) < 10 or "You are a" in answer or "Based on the following" in answer or "<FREETEXT>" in answer or "<ABSTRACT>" in answer:
+
+            if not answer or len(answer) < 10:
                 logger.warning("Answer quality check failed, using fallback generation")
                 return self._generate_fallback(prompt, evidence_texts or [])
-            
+
             return answer
-            
+
         except Exception as e:
             logger.error(f"Error generating with HuggingFace: {e}")
             return self._generate_fallback(prompt, evidence_texts or [])
@@ -473,125 +429,76 @@ Answer:"""
             return self._generate_fallback(prompt, evidence_texts or [])
         
         try:
-            from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2SeqLM
-            
+            # Tokenize inputs
             inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
-            
-            # Check if it's a seq2seq model (FLAN-T5) or causal LM (BioGPT)
+
+            # Build generation kwargs
+            gen_kwargs = {
+                'temperature': settings.llm_temperature,
+                'top_p': 0.9,
+            }
+            eos_id = getattr(self.tokenizer, 'eos_token_id', None)
+            if eos_id is not None:
+                gen_kwargs['eos_token_id'] = eos_id
+
+            # Use model-appropriate generation parameters
             if "flan" in settings.llm_model.lower() or "t5" in settings.llm_model.lower():
-                # For seq2seq models, use generate directly
-                # Type ignore for HuggingFace generate method
+                gen_kwargs.update({
+                    'max_length': settings.llm_max_tokens,
+                    'do_sample': True
+                })
                 outputs = self.model.generate(  # type: ignore
                     **inputs,
-                    max_length=settings.llm_max_tokens,
-                    temperature=settings.llm_temperature,
-                    do_sample=True,
-                    top_p=0.9
+                    **gen_kwargs
                 )
             else:
-                # For causal LM models
-                # Type ignore for HuggingFace generate method
+                gen_kwargs.update({
+                    'max_new_tokens': settings.llm_max_tokens,
+                    'do_sample': True
+                })
                 outputs = self.model.generate(  # type: ignore
                     **inputs,
-                    max_new_tokens=settings.llm_max_tokens,
-                    temperature=settings.llm_temperature,
-                    do_sample=True,
-                    top_p=0.9
+                    **gen_kwargs
                 )
-            
-            answer = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-            
-            logger.info(f"BioGPT raw output length: {len(answer)} chars")
-            logger.debug(f"BioGPT raw output: {answer[:500]}...")  # First 500 chars
-            
-            # For causal models, extract answer after the prompt
-            if "biogpt" in settings.llm_model.lower():
-                # Try to find "Answer:" marker and extract text after it
-                if "Answer:" in answer:
-                    # Split on "Answer:" and take the last part
-                    parts = answer.split("Answer:")
-                    answer_text = parts[-1].strip()
-                    
-                    logger.info(f"Found 'Answer:' marker, extracted {len(answer_text)} chars")
-                    
-                    # Clean up common issues
-                    # Remove any leftover prompt fragments
-                    if "Question:" in answer_text:
-                        answer_text = answer_text.split("Question:")[0].strip()
-                        logger.info("Removed 'Question:' fragment")
-                    if "Evidence:" in answer_text:
-                        answer_text = answer_text.split("Evidence:")[0].strip()
-                        logger.info("Removed 'Evidence:' fragment")
-                    if "Instructions:" in answer_text:
-                        answer_text = answer_text.split("Instructions:")[0].strip()
-                        logger.info("Removed 'Instructions:' fragment")
-                    
-                    # Remove special tags and XML-like artifacts
-                    answer_text = answer_text.replace("</s>", "").replace("", "").strip()
-                    answer_text = answer_text.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
-                    answer_text = answer_text.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
-                    answer_text = answer_text.replace("▃", "").strip()
-                    
-                    # Remove any remaining prompt-like fragments
-                    prompt_indicators = ["You are a", "Based on the following", "Instructions:", "Evidence:"]
-                    for indicator in prompt_indicators:
-                        if indicator in answer_text:
-                            answer_text = answer_text.split(indicator)[0].strip()
-                    
-                    answer = answer_text
-                    logger.info(f"Cleaned answer length: {len(answer)} chars")
+
+            # Decode only the new tokens (avoid echoing prompt)
+            try:
+                input_ids = inputs.get('input_ids', None)
+                input_len = input_ids.shape[1] if input_ids is not None else 0
+            except Exception:
+                input_len = 0
+
+            generated_ids = outputs[0]
+            try:
+                if generated_ids.shape[1] > input_len:
+                    gen_only = generated_ids[:, input_len:]
                 else:
-                    logger.warning("No 'Answer:' marker found, trying direct prompt removal")
-                    # If no "Answer:" marker, try removing the prompt directly
-                    if prompt in answer:
-                        answer = answer.replace(prompt, "").strip()
-                        logger.info(f"Removed prompt, remaining: {len(answer)} chars")
-                    
-                # Final cleanup: take only the first paragraph/sentence if it's too messy
-                if len(answer) > 1000:  # If too long, likely includes prompt
-                    logger.warning(f"Answer too long ({len(answer)} chars), extracting first sentences")
-                    # Take first reasonable chunk
-                    sentences = answer.split(". ")
-                    clean_sentences = []
-                    for sent in sentences:
-                        # Skip sentences that look like prompt artifacts
-                        if any(keyword in sent for keyword in ["Question:", "Evidence:", "Instructions:", "Based on the following", "You are a"]):
-                            continue
-                        # Skip sentences with XML artifacts
-                        if any(artifact in sent for artifact in ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃"]):
-                            continue
-                        clean_sentences.append(sent)
-                        if len(clean_sentences) >= 3:  # Take first 3-4 sentences
-                            break
-                    answer = ". ".join(clean_sentences)
-                    if answer and not answer.endswith("."):
-                        answer += "."
-                    logger.info(f"Extracted {len(clean_sentences)} clean sentences")
-            
-            # Additional cleanup for all models
-            # Remove any remaining special tokens or artifacts
+                    gen_only = generated_ids
+            except Exception:
+                gen_only = generated_ids
+
+            answer = self.tokenizer.decode(gen_only[0], skip_special_tokens=True)
+
+            logger.info(f"BioGPT raw output length: {len(answer)} chars")
+            logger.debug(f"BioGPT raw output: {answer[:500]}...")
+
+            if "biogpt" in settings.llm_model.lower() and "Answer:" in answer:
+                parts = answer.split("Answer:")
+                answer = parts[-1].strip()
+
+            # General cleanup of artifacts
             answer = answer.replace("</s>", "").replace("", "").strip()
             answer = answer.replace("<FREETEXT>", "").replace("</FREETEXT>", "").strip()
             answer = answer.replace("<ABSTRACT>", "").replace("</ABSTRACT>", "").strip()
             answer = answer.replace("▃", "").strip()
-            
-            # Remove extra whitespace and newlines
             answer = " ".join(answer.split())
-            
-            # Remove constraint text if it somehow got included
-            if "Constraints: Provide a detailed medical answer in 30-40 words without citations" in answer:
-                answer = answer.replace("Constraints: Provide a detailed medical answer in 30-40 words without citations", "").strip()
-            
-            logger.info(f"Final answer length: {len(answer)} chars")
-            logger.debug(f"Final answer preview: {answer[:200]}...")
-            
-            # If answer is still messy or contains prompt artifacts, use fallback
-            if not answer.strip() or len(answer) < 10 or "You are a" in answer or "Based on the following" in answer or "<FREETEXT>" in answer or "<ABSTRACT>" in answer:
+
+            if not answer or len(answer) < 10:
                 logger.warning("Answer quality check failed, using fallback generation")
                 return self._generate_fallback(prompt, evidence_texts or [])
-            
+
             return answer
-            
+
         except Exception as e:
             logger.error(f"Error generating with HuggingFace: {e}")
             return self._generate_fallback(prompt, evidence_texts or [])
@@ -677,14 +584,13 @@ Answer:"""
             GeneratedAnswer with answer text and metadata (without citations)
         """
         logger.info(f"Generating answer without citations in {mode} mode")
-        
-        # Create prompt without citation requirements
-        prompt = self._create_prompt_without_citations(query, evidence, mode)
-        
         # Extract evidence texts for fallback
         evidence_texts = [ev.content for ev in evidence.evidences]
         
-        # Generate answer using BioGPT/selected HuggingFace model without citations
+        # Create prompt without citations
+        prompt = self._create_prompt_without_citations(query, evidence, mode)
+
+        # Generate answer using HuggingFace model (BioGPT) without citations
         logger.info("Generating answer with HuggingFace model (BioGPT) without citations")
         answer_text = self._generate_without_citations(
             prompt + "\n\nConstraints: Provide a detailed medical answer in 30-40 words without citations.",
