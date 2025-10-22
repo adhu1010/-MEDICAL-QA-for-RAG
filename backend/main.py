@@ -195,7 +195,7 @@ async def ask_medical_question(query: MedicalQuery):
         
         logger.info(f"Returning answer with confidence {final_answer.confidence:.2f}")
         return final_answer
-        
+
     except Exception as e:
         logger.error(f"Error processing question: {e}", exc_info=True)
         raise HTTPException(

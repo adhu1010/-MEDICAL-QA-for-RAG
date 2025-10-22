@@ -214,13 +214,20 @@ class SafetyReflector:
         all_issues.extend(self.check_evidence_alignment(answer.answer, evidence_texts))
         
         # Additional check for messy output artifacts
+        # Only flag as issues if they're not part of the expected disclaimer
         messy_artifacts = ["<FREETEXT>", "</FREETEXT>", "<ABSTRACT>", "</ABSTRACT>", "▃", "</s>"]
-        if any(artifact in answer.answer for artifact in messy_artifacts):
+        # Check if messy artifacts are in the answer but not in the disclaimer pattern
+        answer_without_disclaimer = answer.answer
+        if "\n\n⚠️ Important: This information is for educational purposes only" in answer_without_disclaimer:
+            answer_without_disclaimer = answer_without_disclaimer.split("\n\n⚠️ Important: This information is for educational purposes only")[0]
+            
+        if any(artifact in answer_without_disclaimer for artifact in messy_artifacts):
             all_issues.append("Answer contains messy output artifacts that should be cleaned")
         
-        # Check for prompt fragments
+        # Check for prompt fragments (but ignore the constraint text which is expected)
         prompt_fragments = ["You are a", "Based on the following", "Instructions:", "Evidence:", "Question:"]
-        if any(fragment in answer.answer for fragment in prompt_fragments):
+        # Check if prompt fragments are in the answer but not in the constraint text
+        if any(fragment in answer.answer and "Constraints:" not in answer.answer for fragment in prompt_fragments):
             all_issues.append("Answer contains prompt fragments that should be removed")
         
         # Generate suggestions

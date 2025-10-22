@@ -301,6 +301,10 @@ Answer:"""
             # Remove extra whitespace and newlines
             answer = " ".join(answer.split())
             
+            # Remove constraint text if it somehow got included
+            if "Constraints: Provide a detailed medical answer in 30-40 words" in answer:
+                answer = answer.replace("Constraints: Provide a detailed medical answer in 30-40 words", "").strip()
+            
             logger.info(f"Final answer length: {len(answer)} chars")
             logger.debug(f"Final answer preview: {answer[:200]}...")
             
@@ -355,11 +359,16 @@ Answer:"""
             if not answer.endswith('.'):
                 answer += '.'
             
+            # Limit to 30-40 words for consistency
+            words = answer.split()
+            if len(words) > 40:
+                answer = " ".join(words[:40]).rstrip(".,;:!?")
+                
             return answer
         else:
             # No evidence available
-            return """I apologize, but I don't have enough medical evidence in my knowledge base to answer this question accurately. Please consult with a qualified healthcare professional for accurate medical information."""
-    
+            return "I apologize, but I don't have enough medical evidence in my knowledge base to answer this question accurately. Please consult with a qualified healthcare professional for accurate medical information."
+
     def _create_prompt_without_citations(
         self,
         query: ProcessedQuery,
@@ -568,6 +577,10 @@ Answer:"""
             
             # Remove extra whitespace and newlines
             answer = " ".join(answer.split())
+            
+            # Remove constraint text if it somehow got included
+            if "Constraints: Provide a detailed medical answer in 30-40 words without citations" in answer:
+                answer = answer.replace("Constraints: Provide a detailed medical answer in 30-40 words without citations", "").strip()
             
             logger.info(f"Final answer length: {len(answer)} chars")
             logger.debug(f"Final answer preview: {answer[:200]}...")
