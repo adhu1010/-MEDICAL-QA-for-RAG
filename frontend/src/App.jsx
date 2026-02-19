@@ -5,9 +5,9 @@ import {
 } from 'firebase/auth';
 import {
   getFirestore, collection, doc, query, orderBy, onSnapshot,
-  addDoc, serverTimestamp, updateDoc
+  addDoc, serverTimestamp, updateDoc, deleteDoc
 } from 'firebase/firestore';
-import { Menu, MessageSquare, Plus, Send, Loader, AlertCircle, TrendingUp, Cpu, Heart } from 'lucide-react';
+import { Menu, MessageSquare, Plus, Send, Loader, AlertCircle, TrendingUp, Cpu, Heart, Trash2 } from 'lucide-react';
 import { apiClient } from './api';
 
 // --- Configuration Variables (Sourced from Sandbox Globals) ---
@@ -289,17 +289,46 @@ const App = () => {
     }
   };
 
+  const handleDeleteChat = async (e, chatId) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this chat?")) return;
+
+    try {
+      const chatDocRef = doc(db, `artifacts/${cleanAppId}/users/${userId}/chats`, chatId);
+      await deleteDoc(chatDocRef);
+
+      // If we deleted the current chat, reset state
+      if (currentChatId === chatId) {
+        setCurrentChatId(null);
+        setMessages([]);
+      }
+    } catch (e) {
+      console.error("Error deleting chat:", e);
+      setError("Failed to delete chat.");
+    }
+  };
+
   const ChatHistoryItem = ({ chat }) => (
     <div
       onClick={() => {
         setCurrentChatId(chat.id);
         setIsSidebarOpen(false);
       }}
-      className={`p-3 rounded-xl cursor-pointer transition-colors flex items-center space-x-3 text-sm font-medium 
+      className={`group px-3 py-2 rounded-xl cursor-pointer transition-colors flex items-center justify-between text-sm font-medium 
         ${currentChatId === chat.id ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-gray-100 text-gray-700'}`}
     >
-      <MessageSquare className="w-4 h-4" />
-      <span className="truncate">{chat.title || "Untitled Chat"}</span>
+      <div className="flex items-center space-x-2 overflow-hidden flex-1">
+        <MessageSquare className="w-4 h-4 flex-shrink-0" />
+        <span className="truncate">{chat.title || "Untitled Chat"}</span>
+      </div>
+      <button
+        onClick={(e) => handleDeleteChat(e, chat.id)}
+        className={`p-1.5 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100
+          ${currentChatId === chat.id ? 'hover:bg-indigo-500 text-white/80 hover:text-white' : 'hover:bg-gray-200 text-gray-400 hover:text-red-500'}`}
+        title="Delete chat"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
     </div>
   );
 
