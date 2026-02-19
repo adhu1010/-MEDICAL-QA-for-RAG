@@ -1,7 +1,7 @@
 # Core Backend
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
-pydantic>=1.9.0,<2.0.0
+pydantic>=2.0.0
 python-multipart>=0.0.6
 
 # LLM & Transformers
@@ -12,6 +12,10 @@ langchain-community>=0.0.10
 openai>=1.0.0
 tiktoken>=0.5.0
 typing-extensions>=4.5.0
+
+# Ollama & OpenAI-compatible API clients
+ollama>=0.1.0  # For Ollama/Meditron integration
+sacremoses>=0.0.53  # For tokenization
 
 # Medical NLP
 scispacy>=0.5.0

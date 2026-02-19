@@ -65,4 +65,5 @@ echo "Press Ctrl+C to stop all servers"
 echo ""
 
 # Run both servers
-npm run dev:full
+# Run both servers without auto-reload to prevent model reloading loops
+npm run start

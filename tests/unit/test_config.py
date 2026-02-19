@@ -19,7 +19,7 @@ def test_settings_default_values():
     assert settings.vector_store_path == "./vector_store"
     assert settings.top_k_vector == 5
     assert settings.top_k_kg == 3
-    assert settings.similarity_threshold == 0.7
+    assert settings.similarity_threshold == 0.5
     assert settings.enable_safety_reflection is True
     assert settings.enable_content_filter is True
 

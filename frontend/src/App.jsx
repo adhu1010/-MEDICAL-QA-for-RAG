@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged 
+import {
+  getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged
 } from 'firebase/auth';
-import { 
-  getFirestore, collection, doc, query, orderBy, onSnapshot, 
-  addDoc, serverTimestamp, updateDoc 
+import {
+  getFirestore, collection, doc, query, orderBy, onSnapshot,
+  addDoc, serverTimestamp, updateDoc
 } from 'firebase/firestore';
 import { Menu, MessageSquare, Plus, Send, Loader, AlertCircle, TrendingUp, Cpu, Heart } from 'lucide-react';
+import { apiClient } from './api';
 
 // --- Configuration Variables (Sourced from Sandbox Globals) ---
-const firebaseConfig = typeof __firebase_config !== 'undefined' 
+const firebaseConfig = typeof __firebase_config !== 'undefined'
   ? JSON.parse(__firebase_config) : {};
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' 
+const initialAuthToken = typeof __initial_auth_token !== 'undefined'
   ? __initial_auth_token : null;
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rag-app';
 
@@ -21,53 +22,8 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-rag-app';
 const sanitizeAppId = (id) => id.replace(/[^a-zA-Z0-9_-]/g, '_');
 const cleanAppId = sanitizeAppId(appId);
 
-// --- Gemini API Configuration ---
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=";
-const API_KEY = "AIzaSyBfarzwPCCg7g4njGf4rOJQKgoeXoiGW8g"; // API Key is left empty, as the environment handles injection for the fetch call.
-// --- END Configuration Update ---
-
-
-// --- RAG TOOL SIMULATION (Conceptual Implementation) ---
-const bm25_retriever = (query) => {
-  if (query.toLowerCase().includes('side effect') || query.toLowerCase().includes('dosage')) {
-    return "BM25 Result: Document 12A: Common side effects of Aspirin include gastrointestinal irritation and tinnitus. Contraindication: Reye's Syndrome in children.";
-  }
-  return "BM25 Result: Found general keywords related to patient safety guidelines.";
-};
-
-const kg_query_generator = (query) => {
-  if (query.toLowerCase().includes('mechanism') || query.toLowerCase().includes('inhibits')) {
-    return "Cypher Query: MATCH (d:Drug {name: 'Aspirin'})-[r]->(t:Target) RETURN r.type, t.name. KG Fact: Aspirin inhibits COX enzymes, and COX enzymes regulate inflammation.";
-  }
-  return "Cypher Query: No high-confidence entity relationship detected. Skipping KG retrieval.";
-};
-
-const dense_retriever = (query) => {
-    if (query.toLowerCase().includes('inflammation')) {
-        return "Vector Result: The inflammatory response involves leukocyte migration and cytokine release, mediated by prostaglandins.";
-    }
-    return "Vector Result: General concept match: Pain and fever relief mechanisms are related to anti-prostaglandin activity.";
-}
-
-const hybrid_fusion_rrf = (query) => {
-    const sparse_res = bm25_retriever(query);
-    const dense_res = dense_retriever(query);
-
-    if (query.toLowerCase().includes('rare disease')) {
-        return {
-            context: `RRF Context Pool:\n${sparse_res}\n${dense_res}\n\n[Reranker Note: Only low-relevance documents found.]`,
-            confidence: 55,
-            mode: "Hybrid (Low Confidence)",
-        };
-    }
-    
-    return {
-        context: `RRF Context Pool:\n${sparse_res}\n${dense_res}\n\n[Reranker Note: High relevance confirmed by cross-encoder model.]`,
-        confidence: 85 + (query.length % 10),
-        mode: "Hybrid (RRF + Rerank)",
-    };
-};
-// --- END RAG TOOL SIMULATION ---
+// Note: This app uses the local Medical RAG backend API (localhost:8000)
+// Firebase is used only for chat history persistence
 
 
 const App = () => {
@@ -81,7 +37,7 @@ const App = () => {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
+
   const messagesEndRef = useRef(null);
 
   // Scroll to the latest message
@@ -96,7 +52,7 @@ const App = () => {
       setError("Firebase not configured. Check environment setup.");
       return;
     }
-    
+
     try {
       const app = initializeApp(firebaseConfig);
       const newDb = getFirestore(app);
@@ -170,18 +126,21 @@ const App = () => {
     const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log('[Firebase] Message snapshot received, doc count:', snapshot.docs.length);
       const newMessages = snapshot.docs.map(doc => {
         const data = doc.data();
+        console.log('[Firebase] Processing message:', { id: doc.id, role: data.role, textPreview: data.text?.substring(0, 50) });
         let parsedText = data.text;
         let metadata = null;
         if (data.role === 'model' && typeof data.text === 'string' && data.text.startsWith('{')) {
-            try {
-                const json = JSON.parse(data.text);
-                parsedText = json.text;
-                metadata = json;
-            } catch (e) {
-                console.warn("Failed to parse JSON response, treating as plain text.");
-            }
+          try {
+            const json = JSON.parse(data.text);
+            parsedText = json.text;
+            metadata = json;
+            console.log('[Firebase] Parsed model response metadata:', metadata);
+          } catch (e) {
+            console.warn("Failed to parse JSON response, treating as plain text.");
+          }
         }
 
         return {
@@ -192,6 +151,7 @@ const App = () => {
           timestamp: data.timestamp?.toDate()
         };
       });
+      console.log('[Firebase] Setting', newMessages.length, 'messages to state');
       setMessages(newMessages);
       scrollToBottom();
     }, (e) => {
@@ -206,7 +166,7 @@ const App = () => {
 
   const handleNewChat = useCallback(async () => {
     if (!db || !userId) return;
-    setIsSidebarOpen(false); 
+    setIsSidebarOpen(false);
 
     // Use cleanAppId in the collection reference path
     const chatsCollectionRef = collection(db, `artifacts/${cleanAppId}/users/${userId}/chats`);
@@ -215,7 +175,7 @@ const App = () => {
       createdAt: serverTimestamp(),
       lastUpdatedAt: serverTimestamp(),
     };
-    
+
     try {
       const docRef = await addDoc(chatsCollectionRef, newChatData);
       setCurrentChatId(docRef.id);
@@ -225,91 +185,43 @@ const App = () => {
     }
   }, [db, userId]);
 
-  // Agentic Orchestrator and Generator (Replaces mock)
-  const callGeminiApi = async (query) => {
-    // --- Agentic Orchestration Start (Decision Making) ---
-    const lowerQuery = query.toLowerCase();
-    let retrievalResult = {};
-    let persona = lowerQuery.includes('doctor') || lowerQuery.includes('clinical') || lowerQuery.includes('mechanism') ? "Doctor/Clinical" : "Patient/General";
-    
-    // 1. Intent Classification & Retrieval Mode Selection
-    if (lowerQuery.includes('mechanism') || lowerQuery.includes('inhibits')) {
-        // Intent: Factoid/Relationship -> Use KG
-        const kg_res = kg_query_generator(query);
-        retrievalResult = {
-            context: `KG Retrieval Output:\n${kg_res}`,
-            confidence: 95,
-            mode: "KG (Neo4j) Focused",
-        };
-    } else if (lowerQuery.includes('side effect') || lowerQuery.includes('dosage')) {
-        // Intent: Precision Keyword -> Use Hybrid
-        retrievalResult = hybrid_fusion_rrf(query);
-    } else {
-        // Intent: Conceptual/Descriptive -> Use Dense
-         retrievalResult = {
-            context: `Vector Retrieval Output:\n${dense_retriever(query)}`,
-            confidence: 75 + (query.length % 5),
-            mode: "Dense (Vector) Focused",
-        };
-    }
-    
-    // 2. Safety Check (Simple mock)
-    if (lowerQuery.includes('self-diagnose') || lowerQuery.includes('dosage for me')) {
-         const safetyResponse = {
-            text: "SAFETY OVERRIDE: I am an AI assistant and cannot provide personalized dosage recommendations or diagnoses. Please consult a qualified healthcare professional immediately.",
-            confidence: 100, persona: "Safety", mode: "Safety Check", citation: "Source: Internal Safety Protocol."
-        };
-        return JSON.stringify(safetyResponse);
-    }
-
-    const { confidence, mode, context } = retrievalResult;
-
-    // 3. Final Prompt Generation (BioGPT instruction)
-    const systemInstruction = persona.includes("Doctor") 
-        ? "You are BioGPT, a specialist clinical assistant. Answer concisely and precisely using professional, evidence-based medical language. Use the context only."
-        : "You are BioGPT, a compassionate health assistant. Explain the answer simply, avoiding complex jargon. Use the context only.";
-    
-    const fullPrompt = `AGENT INSTRUCTION:\nRetrieval Mode Used: ${mode}\n\nEVIDENCE CONTEXT:\n${context}\n\nQUESTION: ${query}\n\nAnswer the question strictly based on the EVIDENCE CONTEXT provided above. If the context is insufficient, state that evidence is lacking. Maintain the tone appropriate for a ${persona} audience.`;
-    
-    // --- Agentic Orchestration End / Generator Call Start ---
-
-    // The LLM acts as the Generator, using the structured context.
-    const payload = {
-        contents: [{ parts: [{ text: fullPrompt }] }],
-        systemInstruction: { parts: [{ text: systemInstruction }] },
-    };
-
-    let rawResult;
+  // Call the Medical RAG Backend API
+  const callBackendApi = async (query) => {
     try {
-        if (!API_KEY) {
-            // Note: API_KEY is intentionally empty for the sandbox environment
-        }
-        const response = await fetch(`${GEMINI_API_URL}${API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        rawResult = await response.json();
-    } catch (e) {
-        console.error("Gemini API call failed:", e);
-        return JSON.stringify({
-            text: `The Agent failed to connect to the BioGPT generator. Error: ${e.message}`,
-            confidence: 0, persona, mode, citation: "Error"
-        });
-    }
+      console.log('[Backend API] Calling backend with query:', query);
+      const response = await apiClient.askQuestion(query, 'auto');
+      console.log('[Backend API] Response received:', response);
 
-    const rawText = rawResult.candidates?.[0]?.content?.parts?.[0]?.text || "Error: Failed to get response from model.";
-    
-    // 4. Structured JSON Output
-    const structuredResponse = {
-        text: rawText,
-        confidence: confidence,
+      // Extract the retrieved mode from the backend response
+      const persona = response.metadata?.detected_mode === 'patient'
+        ? 'Patient/General'
+        : 'Doctor/Clinical';
+
+      // Format structured response matching the UI expectations
+      const structuredResponse = {
+        text: response.answer,
+        confidence: Math.round(response.confidence * 100),
         persona: persona,
-        mode: mode,
-        citation: context, // The full generated context block is the citation
-    };
+        mode: response.metadata?.retrieval_strategy || 'Unknown',
+        citation: response.sources?.map(s => `${s.title}: ${(s.content || "").substring(0, 100)}...`).join('\n') || 'No sources found',
+        safety_validated: response.safety_validated,
+        entities: response.metadata?.entities_found || 0,
+        evidence_count: response.metadata?.evidence_count || 0,
+      };
 
-    return JSON.stringify(structuredResponse);
+      console.log('[Backend API] Formatted response:', structuredResponse);
+      return JSON.stringify(structuredResponse);
+    } catch (error) {
+      console.error('[Backend API] ERROR - Failed to call backend:', error);
+      return JSON.stringify({
+        text: `Error: Unable to reach the backend API. Make sure the backend is running on ${apiClient.baseURL}. Error: ${error.message}`,
+        confidence: 0,
+        persona: 'System',
+        mode: 'Error',
+        citation: 'Error',
+        safety_validated: false,
+      });
+    }
   };
 
 
@@ -342,27 +254,33 @@ const App = () => {
 
     try {
       // 1. Save User Message
+      console.log('[Firebase] Saving user message:', userMessage);
       await addDoc(messagesCollectionRef, {
         text: userMessage,
         role: 'user',
         timestamp: serverTimestamp(),
       });
+      console.log('[Firebase] User message saved successfully');
 
-      // 2. Call the Agent/Generator (Returns structured JSON string)
-      const modelResponseJSON = await callGeminiApi(userMessage);
-      
+      // 2. Call the Medical RAG Backend API (Returns structured JSON string)
+      console.log('[Backend] Calling backend API...');
+      const modelResponseJSON = await callBackendApi(userMessage);
+      console.log('[Backend] Got response, saving to Firebase...');
+
       // 3. Save Model Response (Saving the JSON string)
       await addDoc(messagesCollectionRef, {
         text: modelResponseJSON,
         role: 'model',
         timestamp: serverTimestamp(),
       });
+      console.log('[Firebase] Model response saved successfully');
 
       // 4. Update Chat Metadata
       await updateDoc(doc(db, `artifacts/${cleanAppId}/users/${userId}/chats`, chatID), {
         lastUpdatedAt: serverTimestamp(),
       });
-      
+      console.log('[Firebase] Chat metadata updated');
+
     } catch (e) {
       console.error("Error during chat processing:", e);
       setError("An error occurred while fetching the model response.");
@@ -375,7 +293,7 @@ const App = () => {
     <div
       onClick={() => {
         setCurrentChatId(chat.id);
-        setIsSidebarOpen(false); 
+        setIsSidebarOpen(false);
       }}
       className={`p-3 rounded-xl cursor-pointer transition-colors flex items-center space-x-3 text-sm font-medium 
         ${currentChatId === chat.id ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-gray-100 text-gray-700'}`}
@@ -389,7 +307,7 @@ const App = () => {
     const isModel = message.role === 'model';
     const textContent = message.text || "Loading...";
     const metadata = message.metadata;
-    
+
     // Style helper for confidence
     const getConfidenceColor = (conf) => {
       if (conf >= 90) return 'text-green-600 bg-green-100';
@@ -400,7 +318,7 @@ const App = () => {
     return (
       <div className={`flex w-full ${isModel ? 'justify-start' : 'justify-end'}`}>
         <div className={`max-w-4xl p-4 rounded-xl shadow-md ${isModel ? 'rounded-tl-none border border-gray-200 bg-white' : 'bg-indigo-500 text-white rounded-br-none'}`}>
-          
+
           {isModel && metadata && (
             <div className={`mb-3 p-3 rounded-lg border border-indigo-200 bg-indigo-50/50 text-xs font-medium text-gray-700 space-y-2`}>
               <div className="flex justify-between items-center pb-2 border-b border-indigo-200">
@@ -413,11 +331,11 @@ const App = () => {
               </div>
               <div className="flex justify-between flex-wrap text-xs">
                 <p className="flex items-center">
-                  <Heart className="w-3 h-3 mr-1 text-red-500" /> Persona: 
+                  <Heart className="w-3 h-3 mr-1 text-red-500" /> Persona:
                   <span className="font-semibold ml-1">{metadata.persona}</span>
                 </p>
                 <p className="flex items-center">
-                  <TrendingUp className="w-3 h-3 mr-1 text-blue-500" /> Retrieval Mode: 
+                  <TrendingUp className="w-3 h-3 mr-1 text-blue-500" /> Retrieval Mode:
                   <span className="font-semibold ml-1">{metadata.mode}</span>
                 </p>
               </div>
@@ -453,7 +371,7 @@ const App = () => {
 
   return (
     <div className="flex h-screen w-full bg-white font-sans text-gray-800">
-      
+
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
                       lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out z-20 
@@ -469,8 +387,8 @@ const App = () => {
         </div>
 
         <div className="p-4 border-b border-gray-200">
-          <button 
-            onClick={handleNewChat} 
+          <button
+            onClick={handleNewChat}
             className="w-full flex items-center justify-center px-4 py-2 bg-indigo-500 text-white rounded-xl shadow-lg hover:bg-indigo-600 transition-colors"
           >
             <Plus className="w-5 h-5 mr-2" /> New Chat
@@ -482,7 +400,7 @@ const App = () => {
           {chats.map(chat => <ChatHistoryItem key={chat.id} chat={chat} />)}
           {chats.length === 0 && <p className="text-sm text-gray-500">No chats yet. Start one above!</p>}
         </div>
-        
+
         <div className="p-4 text-xs text-gray-500 border-t border-gray-200 truncate">
           <p>User ID: {userId}</p>
           <p>App ID: {appId}</p>
@@ -505,11 +423,11 @@ const App = () => {
             <div className="flex flex-col items-center justify-center h-full text-center py-20">
               <MessageSquare className="w-12 h-12 text-indigo-400 mb-4" />
               <h2 className="text-2xl font-semibold text-gray-600 mb-2">Ask BioGPT about Medical QA</h2>
-              
+
               {/* FIX 2: Moved <ul> outside of <p> to fix DOM nesting error */}
               <p className="text-gray-500 max-w-md mb-2">
                 This **Agentic Multi-Modal RAG** system dynamically selects the best retrieval mode (KG, Hybrid, Dense) before generating an answer.
-                <br/>
+                <br />
               </p>
             </div>
           )}
@@ -517,7 +435,7 @@ const App = () => {
           {messages.map((msg) => (
             <Message key={msg.id} message={msg} />
           ))}
-          
+
           <div ref={messagesEndRef} />
         </div>
 
@@ -529,7 +447,7 @@ const App = () => {
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSendMessage} className="flex items-center space-x-3 max-w-5xl mx-auto">
             <div className="flex-1 relative">
               <textarea
@@ -550,7 +468,7 @@ const App = () => {
                 <Loader className="w-5 h-5 animate-spin text-indigo-500 absolute right-3 top-3" />
               )}
             </div>
-            
+
             <button
               type="submit"
               disabled={!input.trim() || isSending || !currentChatId}
@@ -561,11 +479,11 @@ const App = () => {
           </form>
         </div>
       </div>
-      
+
       {/* Sidebar Overlay for Mobile */}
       {isSidebarOpen && (
-        <div 
-          onClick={() => setIsSidebarOpen(false)} 
+        <div
+          onClick={() => setIsSidebarOpen(false)}
           className="fixed inset-0 bg-black opacity-50 z-10 lg:hidden"
         />
       )}

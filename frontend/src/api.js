@@ -3,7 +3,7 @@
  * Handles all communication with the FastAPI backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // Default to localhost:8000 for backend
 
 /**
  * API Client class for backend communication
