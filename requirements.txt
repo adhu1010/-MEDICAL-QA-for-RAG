@@ -1,8 +1,7 @@
 # Core Backend
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
-pydantic>=2.5.0
-pydantic-settings>=2.0.0
+pydantic>=2.0.0
 python-multipart>=0.0.6
 
 # LLM & Transformers
@@ -12,14 +11,19 @@ langchain>=0.1.0
 langchain-community>=0.0.10
 openai>=1.0.0
 tiktoken>=0.5.0
+typing-extensions>=4.5.0
+
+# Ollama & OpenAI-compatible API clients
+ollama>=0.1.0  # For Ollama/Meditron integration
+sacremoses>=0.0.53  # For tokenization
 
 # Medical NLP
 scispacy>=0.5.0
 spacy>=3.7.0
 # Install separately: python -m spacy download en_core_sci_md
 
-# Vector Store & Embeddings
-chromadb>=0.4.0
+# Vector Store & Embeddings - Using ChromaDB 0.4.x with pydantic v1 compatibility
+chromadb>=0.4.24,<0.5.0
 faiss-cpu>=1.7.0
 sentence-transformers>=2.3.0
 rank-bm25>=0.2.2  # Sparse retrieval (BM25)

@@ -10,6 +10,7 @@ class UserMode(str, Enum):
     """User interaction modes"""
     DOCTOR = "doctor"
     PATIENT = "patient"
+    AUTO = "auto"  # Auto-detect mode based on query complexity
 
 
 class QueryType(str, Enum):
@@ -32,13 +33,14 @@ class RetrievalStrategy(str, Enum):
 class MedicalQuery(BaseModel):
     """User's medical question"""
     question: str = Field(..., description="The medical question to answer")
-    mode: UserMode = Field(UserMode.PATIENT, description="User mode (doctor/patient)")
-    
+    mode: UserMode = Field(
+        UserMode.AUTO, description="User mode (doctor/patient/auto)")
+
     class Config:
         json_schema_extra = {
             "example": {
                 "question": "What are the side effects of Metformin?",
-                "mode": "patient"
+                "mode": "auto"
             }
         }
 
@@ -58,7 +60,8 @@ class ProcessedQuery(BaseModel):
     entities: List[MedicalEntity]
     query_type: QueryType
     suggested_strategy: RetrievalStrategy
-    detected_mode: UserMode = Field(UserMode.PATIENT, description="Auto-detected user mode")
+    detected_mode: UserMode = Field(
+        UserMode.PATIENT, description="Auto-detected user mode")
 
 
 class RetrievedEvidence(BaseModel):
@@ -74,7 +77,8 @@ class FusedEvidence(BaseModel):
     evidences: List[RetrievedEvidence]
     combined_confidence: float
     fusion_method: str
-    metadata: Dict[str, Any] = {}  # Metadata about fusion process (e.g., fallback info)
+    # Metadata about fusion process (e.g., fallback info)
+    metadata: Dict[str, Any] = {}
 
 
 class GeneratedAnswer(BaseModel):
@@ -83,6 +87,8 @@ class GeneratedAnswer(BaseModel):
     confidence: float
     sources: List[str]
     reasoning: Optional[str] = None
+    evidence_texts: Optional[List[str]] = None
+    metadata: Dict[str, Any] = {}
 
 
 class SafetyCheck(BaseModel):
@@ -101,7 +107,7 @@ class MedicalAnswer(BaseModel):
     confidence: float
     safety_validated: bool
     metadata: Dict[str, Any] = {}
-    
+
     class Config:
         json_schema_extra = {
             "example": {

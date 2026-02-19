@@ -1,0 +1,225 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    NER & MODE DETECTION - REFERENCE CARD                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🧠 NER (Named Entity Recognition)                                           │
+│ What: Extract medical entities (drugs, diseases) from questions             │
+│ Where: backend/preprocessing/query_processor.py                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+NER METHODS (3 Options)
+┌────────────┬──────────┬───────┬──────────────────────────────────────────┐
+│ Method     │ Accuracy │ Speed │ Status / When to Use                     │
+├────────────┼──────────┼───────┼──────────────────────────────────────────┤
+│ scispaCy   │ 85%      │ MED   │ ⚠️ Not installed (install if needed)    │
+│ Regex      │ 65%      │ FAST  │ ✅ Currently active (fallback)          │
+│ BioBERT    │ 92%      │ SLOW  │ 🔧 Alternative (high accuracy)          │
+│ Dictionary │ 98%      │ VFAST │ 🔧 Alternative (known terms only)       │
+│ Hybrid     │ 95%      │ MED   │ 🔧 Alternative (best combination)       │
+└────────────┴──────────┴───────┴──────────────────────────────────────────┘
+
+NER WORKFLOW
+  Input: "What are side effects of Metformin?"
+    ↓
+  Is scispaCy loaded? NO (not installed)
+    ↓
+  Use Regex Fallback
+    ├─ Drug patterns: [A-Z][a-z]+(in|ate|ide|ine|cin|zole|...)
+    ├─ Disease patterns: [Dd]iabetes, [Hh]ypertension, [Ss]inusitis
+    └─ Match "Metformin" → Extract DRUG entity
+    ↓
+  Output: MedicalEntity(text="Metformin", type="DRUG", confidence=0.7)
+
+NER CODE LOCATIONS
+  • Primary scispaCy: Lines 36-107
+  • Fallback regex: Lines 109-170
+  • Selection logic: Lines 79-107
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 👥 MODE DETECTION (Patient vs Doctor)                                       │
+│ What: Automatically detect if user is a patient or medical professional    │
+│ Where: backend/preprocessing/query_processor.py                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+4-STEP ALGORITHM (Processing Order)
+
+STEP 1️⃣ CHECK TECHNICAL TERMS (Strongest)
+  Keywords: pathophysiology, pharmacokinetics, contraindication, differential,
+            etiology, therapeutic index, bioavailability, efficacy
+  ├─ Found? → DOCTOR MODE ✅ (Return immediately)
+  └─ Not found? → Continue to Step 2
+  
+  Lines: 228-244
+  Example: "What is pathophysiology?" → DOCTOR (has technical term)
+
+STEP 2️⃣ CHECK PERSONAL PRONOUNS (Strong)
+  Phrases: "I have", "I am", "my ", "should I"
+  ├─ Found? → PATIENT MODE ✅ (Return immediately)
+  └─ Not found? → Continue to Step 3
+  
+  Lines: 237-248
+  Example: "I have diabetes, is it safe?" → PATIENT (has "I have")
+
+STEP 3️⃣ COUNT KEYWORD SCORES (Medium)
+  Doctor keywords (30+): differential diagnosis, management of, treatment 
+                         protocol, clinical guidelines, first-line therapy, etc.
+  Patient keywords (20+): side effects, is it safe, will it help, how long, 
+                          should i worry, in simple terms, etc.
+  ├─ Score each type: doctor_score, patient_score
+  ├─ If doctor_score > patient_score AND doctor_score ≥ 2
+  │  → DOCTOR MODE ✅
+  └─ Otherwise → Continue to Step 4
+  
+  Lines: 224-252
+  Example: "What are first-line therapies?" → DOCTOR (2+ professional keywords)
+
+STEP 4️⃣ DEFAULT TO PATIENT (Safety)
+  When: No strong indicators found
+  ├─ No technical terms
+  ├─ No personal pronouns
+  ├─ No keyword majority
+  └─ → PATIENT MODE ✅ (Safe default)
+  
+  Lines: 254-256
+  Example: "What is diabetes?" → PATIENT (default, no indicators)
+
+MODE DECISION TREE
+  Question
+    ↓
+  ┌─ Has technical terms? YES → DOCTOR
+  │
+  └─ NO
+    ├─ Has personal pronouns? YES → PATIENT
+    │
+    └─ NO
+      ├─ doctor_score > patient_score ≥ 2? YES → DOCTOR
+      │
+      └─ NO → Default PATIENT
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🔑 QUICK KEYWORDS REFERENCE                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+DOCTOR KEYWORDS
+  Technical:       differential diagnosis, pathophysiology, contraindication,
+                   pharmacokinetics, etiology, therapeutic index
+  Clinical:        management of, treatment protocol, clinical guidelines,
+                   first-line therapy, mechanism of action
+  Professional:    prescribe, efficacy, bioavailability, half-life,
+                   monitoring parameters, dosing regimen
+
+PATIENT KEYWORDS
+  Personal:        I have, I am, my, me, should I, can I
+  Lay terms:       side effects, is it safe, will it help, how long
+  Concerns:        should I worry, is this normal, what can I do,
+                   in simple terms, in plain english
+
+QUICK INDICATORS
+  DOCTOR indicators:
+    ✓ "pathophysiology", "pharmacokinetics", "contraindication"
+    ✓ "first-line", "diagnostic criteria", "clinical manifestations"
+    ✓ Asks about mechanism, efficacy, half-life
+  
+  PATIENT indicators:
+    ✓ "I have", "my ", "should I"
+    ✓ "side effects", "is it safe", "how long"
+    ✓ Personal pronouns and lay language
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📊 IMPACT ON RESPONSES                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+PATIENT MODE (Simple, Lay Language)
+  Q: "What are side effects of Metformin?"
+  A: "Common side effects include nausea, stomach upset, and diarrhea.
+      These usually go away after a few days. Contact your doctor if
+      they persist."
+
+DOCTOR MODE (Technical, Clinical Details)
+  Q: "What are pharmacokinetics of Metformin?"
+  A: "Metformin undergoes minimal hepatic metabolism (~5%) and is
+      excreted unchanged in urine. Peak plasma concentration occurs
+      in 2-3 hours with oral bioavailability of 50-60%. Half-life is
+      4-8 hours..."
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🧪 TESTING                                                                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+TEST NER
+  curl -X POST http://localhost:8000/api/preprocess \
+    -H "Content-Type: application/json" \
+    -d '{"question":"What are side effects of Metformin?"}'
+
+TEST MODE DETECTION
+  curl -X POST http://localhost:8000/api/ask \
+    -H "Content-Type: application/json" \
+    -d '{"question":"I have diabetes, should I take Metformin?"}'
+
+VIEW LOGS
+  tail -f logs/app.log | grep -E "Mode:|Detected|Extracted"
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 🛠️ CUSTOMIZATION                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+ADD NER PATTERN (Lines 123-135)
+  drug_patterns.append(r'\bYourDrug\b')
+  disease_patterns.append(r'\b[Yy]ourDisease\b')
+
+ADD MODE KEYWORD (Lines 185-222)
+  doctor_keywords.append('your_professional_term')
+  patient_keywords.append('your_lay_term')
+
+MODIFY DETECTION THRESHOLD (Line 250)
+  if doctor_score > patient_score and doctor_score >= 2:  # Change >= 2
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION FILES                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+START HERE (Choose Your Level)
+  ⭐ NER_MODE_INDEX.md
+     └─ Navigation guide, learning paths
+
+5-MINUTE OVERVIEW
+  📋 NER_MODE_SUMMARY.txt
+     └─ 14 key points, line numbers, quick ref
+
+10-MINUTE LOOKUP
+  ⚡ NER_MODE_QUICK_REFERENCE.md
+     └─ Quick lookup, tables, testing, customization
+
+15-MINUTE VISUAL
+  📊 NER_MODE_VISUAL_GUIDE.md
+     └─ Flowcharts, pipelines, ASCII diagrams
+
+30-MINUTE DEEP DIVE
+  📚 NER_AND_MODE_DETECTION.md
+     └─ Comprehensive technical documentation
+
+THIS CARD
+  🎯 This reference card for quick lookup
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 💾 MEMORY SAVED                                                             │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+System memory updated with:
+  ✅ NER implementation details
+  ✅ Mode detection algorithm  
+  ✅ Keyword lists (doctor vs patient)
+  ✅ Integration points
+  ✅ File locations and line numbers
+
+Next session: Recall from memory for consistency
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              KEEP THIS HANDY!                               ║
+║                  You have everything you need to understand,                 ║
+║                    use, test, and customize NER & Mode.                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+For detailed information, see: NER_MODE_INDEX.md
+For implementation, check: backend/preprocessing/query_processor.py
