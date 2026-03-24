@@ -283,5 +283,485 @@
     "confidence": 0.926170561351386,
     "generation_time": 52.84930205345154,
     "num_evidences": 10
+  },
+  {
+    "question": "What are the genetic changes related to Hennekam syndrome ?",
+    "bleu": 0.17313995564584722,
+    "rouge": {
+      "rouge1": 0.5096153846153847,
+      "rouge2": 0.2512077294685991,
+      "rougeL": 0.34134615384615385
+    },
+    "faithfulness": 0.09712230215827339,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 161,
+    "confidence": 0.8906137070373874,
+    "generation_time": 62.11704230308533,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the treatments for Huntington's Disease ?",
+    "bleu": 0.00618778216514631,
+    "rouge": {
+      "rouge1": 0.30275229357798167,
+      "rouge2": 0.009259259259259259,
+      "rougeL": 0.1651376146788991
+    },
+    "faithfulness": 0.0967741935483871,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 118,
+    "confidence": 0.90318970072833,
+    "generation_time": 53.73278450965881,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Fabry disease ?",
+    "bleu": 0.012565740637158415,
+    "rouge": {
+      "rouge1": 0.2520325203252033,
+      "rouge2": 0.03278688524590164,
+      "rougeL": 0.13821138211382114
+    },
+    "faithfulness": 0.12186379928315412,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 108,
+    "confidence": 0.9327924445309563,
+    "generation_time": 63.70913529396057,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Gerstmann-Straussler-Scheinker Disease ?",
+    "bleu": 0.03646797007582616,
+    "rouge": {
+      "rouge1": 0.32575757575757575,
+      "rouge2": 0.06870229007633587,
+      "rougeL": 0.1590909090909091
+    },
+    "faithfulness": 0.11933174224343675,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 121,
+    "confidence": 0.9164093428168876,
+    "generation_time": 83.19803595542908,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the genetic changes related to GM2-gangliosidosis, AB variant ?",
+    "bleu": 0.1782437548516751,
+    "rouge": {
+      "rouge1": 0.47293447293447294,
+      "rouge2": 0.23495702005730656,
+      "rougeL": 0.3190883190883191
+    },
+    "faithfulness": 0.16666666666666666,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 147,
+    "confidence": 0.895148443391549,
+    "generation_time": 62.13690996170044,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the stages of Endometrial Cancer ?",
+    "bleu": 6.54468230563416e-05,
+    "rouge": {
+      "rouge1": 0.16345412490362377,
+      "rouge2": 0.03861003861003861,
+      "rougeL": 0.08326908249807247
+    },
+    "faithfulness": 0.07563025210084033,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 149,
+    "confidence": 0.915665902080128,
+    "generation_time": 55.25398802757263,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Intestinal pseudo-obstruction ?",
+    "bleu": 0.008062500172157261,
+    "rouge": {
+      "rouge1": 0.35294117647058826,
+      "rouge2": 0.044444444444444446,
+      "rougeL": 0.18382352941176475
+    },
+    "faithfulness": 0.08843537414965986,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 141,
+    "confidence": 0.9341973704900454,
+    "generation_time": 87.62150859832764,
+    "num_evidences": 10
+  },
+  {
+    "question": "what research (or clinical trials) is being done for Spinal Cord Infarction ?",
+    "bleu": 0.006241207141363596,
+    "rouge": {
+      "rouge1": 0.15584415584415587,
+      "rouge2": 0.06578947368421052,
+      "rougeL": 0.10389610389610389
+    },
+    "faithfulness": 0.0954356846473029,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 132,
+    "confidence": 0.8748415336503103,
+    "generation_time": 70.47831797599792,
+    "num_evidences": 10
+  },
+  {
+    "question": "How many people are affected by Jervell and Lange-Nielsen syndrome ?",
+    "bleu": 0.021079177643709007,
+    "rouge": {
+      "rouge1": 0.13756613756613756,
+      "rouge2": 0.053475935828877004,
+      "rougeL": 0.10582010582010583
+    },
+    "faithfulness": 0.12260536398467432,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 150,
+    "confidence": 0.9515597819705828,
+    "generation_time": 71.69321799278259,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the genetic changes related to Schindler disease ?",
+    "bleu": 0.0055534704499967755,
+    "rouge": {
+      "rouge1": 0.1702127659574468,
+      "rouge2": 0.03225806451612903,
+      "rougeL": 0.07446808510638299
+    },
+    "faithfulness": 0.09657320872274143,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 51,
+    "confidence": 0.884275643482472,
+    "generation_time": 65.71834230422974,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the symptoms of Arthrogryposis, distal, with hypopituitarism, intellectual disability and facial anomalies ?",
+    "bleu": 0.00013555691942570482,
+    "rouge": {
+      "rouge1": 0.106312292358804,
+      "rouge2": 0.026755852842809368,
+      "rougeL": 0.079734219269103
+    },
+    "faithfulness": 0.03383458646616541,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 46,
+    "confidence": 0.7813188898500572,
+    "generation_time": 86.97442579269409,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the genetic changes related to Ollier disease ?",
+    "bleu": 0.016626630308867185,
+    "rouge": {
+      "rouge1": 0.3453815261044177,
+      "rouge2": 0.048582995951417005,
+      "rougeL": 0.1927710843373494
+    },
+    "faithfulness": 0.08333333333333333,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 121,
+    "confidence": 0.8720353340906118,
+    "generation_time": 55.64201617240906,
+    "num_evidences": 10
+  },
+  {
+    "question": "How many people are affected by acatalasemia ?",
+    "bleu": 0.012437622273926356,
+    "rouge": {
+      "rouge1": 0.21739130434782608,
+      "rouge2": 0.054945054945054944,
+      "rougeL": 0.14130434782608695
+    },
+    "faithfulness": 0.11731843575418995,
+    "hallucination": {
+      "hallucination_rate": 1.0,
+      "unsupported_terms": [
+        "Vitamin"
+      ],
+      "total_medical_terms": 1
+    },
+    "answer_length": 135,
+    "confidence": 0.9094382046205626,
+    "generation_time": 58.603851079940796,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the symptoms of Hairy elbows ?",
+    "bleu": 0.0057317869594526285,
+    "rouge": {
+      "rouge1": 0.2701421800947867,
+      "rouge2": 0.047619047619047616,
+      "rougeL": 0.13744075829383884
+    },
+    "faithfulness": 0.08353221957040573,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 129,
+    "confidence": 0.885786107545264,
+    "generation_time": 52.51373338699341,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Pelizaeus-Merzbacher-like disease ?",
+    "bleu": 0.0028382347756689312,
+    "rouge": {
+      "rouge1": 0.28028503562945367,
+      "rouge2": 0.04773269689737471,
+      "rougeL": 0.14251781472684086
+    },
+    "faithfulness": 0.09606986899563319,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 136,
+    "confidence": 0.7938204771353907,
+    "generation_time": 56.01126670837402,
+    "num_evidences": 10
+  },
+  {
+    "question": "Do you have information about Iron",
+    "bleu": 0.04257139890871516,
+    "rouge": {
+      "rouge1": 0.27450980392156865,
+      "rouge2": 0.0790513833992095,
+      "rougeL": 0.16470588235294117
+    },
+    "faithfulness": 0.06497622820919176,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 106,
+    "confidence": 0.8568391463696157,
+    "generation_time": 52.30619692802429,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Acromegaly ?",
+    "bleu": 0.0999882667034368,
+    "rouge": {
+      "rouge1": 0.3666666666666667,
+      "rouge2": 0.13445378151260506,
+      "rougeL": 0.24166666666666667
+    },
+    "faithfulness": 0.09368635437881874,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 117,
+    "confidence": 0.8870138294981025,
+    "generation_time": 66.2510552406311,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Chronic Bronchitis ?",
+    "bleu": 0.0027309011086120976,
+    "rouge": {
+      "rouge1": 0.20149253731343283,
+      "rouge2": 0.015037593984962405,
+      "rougeL": 0.09701492537313433
+    },
+    "faithfulness": 0.0737527114967462,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 81,
+    "confidence": 0.920058704764957,
+    "generation_time": 63.088703870773315,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the genetic changes related to Peters plus syndrome ?",
+    "bleu": 0.1675286052871512,
+    "rouge": {
+      "rouge1": 0.43478260869565216,
+      "rouge2": 0.2390438247011952,
+      "rougeL": 0.3241106719367589
+    },
+    "faithfulness": 0.134185303514377,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 140,
+    "confidence": 0.923682870051314,
+    "generation_time": 58.647340059280396,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the treatments for progressive osseous heteroplasia ?",
+    "bleu": 0.006079809820624653,
+    "rouge": {
+      "rouge1": 0.10526315789473684,
+      "rouge2": 0.015267175572519083,
+      "rougeL": 0.09022556390977443
+    },
+    "faithfulness": 0.08196721311475409,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 94,
+    "confidence": 0.8887689393323539,
+    "generation_time": 54.82413101196289,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Microscopic polyangiitis ?",
+    "bleu": 2.2573303674215062e-05,
+    "rouge": {
+      "rouge1": 0.0988235294117647,
+      "rouge2": 0.014184397163120565,
+      "rougeL": 0.0611764705882353
+    },
+    "faithfulness": 0.06353591160220995,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 48,
+    "confidence": 0.9028721219509132,
+    "generation_time": 63.103270053863525,
+    "num_evidences": 8
+  },
+  {
+    "question": "Who is at risk for Colorectal Cancer? ?",
+    "bleu": 0.006321237545258554,
+    "rouge": {
+      "rouge1": 0.21428571428571427,
+      "rouge2": 0.048192771084337345,
+      "rougeL": 0.11904761904761905
+    },
+    "faithfulness": 0.1781609195402299,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 143,
+    "confidence": 0.9200889528590567,
+    "generation_time": 67.08943367004395,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) La Crosse encephalitis ?",
+    "bleu": 0.24220473238848625,
+    "rouge": {
+      "rouge1": 0.4796747967479675,
+      "rouge2": 0.27868852459016397,
+      "rougeL": 0.36585365853658536
+    },
+    "faithfulness": 0.125,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 112,
+    "confidence": 0.9017332263378093,
+    "generation_time": 64.95448637008667,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) Depression ?",
+    "bleu": 0.025680931813789575,
+    "rouge": {
+      "rouge1": 0.292517006802721,
+      "rouge2": 0.04109589041095891,
+      "rougeL": 0.17006802721088435
+    },
+    "faithfulness": 0.07407407407407407,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 106,
+    "confidence": 0.8986929706813637,
+    "generation_time": 51.74453687667847,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Aberrant subclavian artery ?",
+    "bleu": 0.2890987429547436,
+    "rouge": {
+      "rouge1": 0.4454545454545455,
+      "rouge2": 0.3302752293577982,
+      "rougeL": 0.40909090909090906
+    },
+    "faithfulness": 0.32919254658385094,
+    "hallucination": {
+      "hallucination_rate": 1.0,
+      "unsupported_terms": [
+        "Adenosine",
+        "Adenosine"
+      ],
+      "total_medical_terms": 2
+    },
+    "answer_length": 129,
+    "confidence": 0.920930552482605,
+    "generation_time": 68.42920231819153,
+    "num_evidences": 5
   }
 ]
