@@ -1,0 +1,77 @@
+{
+  "num_cases": 4,
+  "avg_bleu": 0.021372393023996374,
+  "avg_rouge1": 0.20404339151946174,
+  "avg_rouge2": 0.09193948929878107,
+  "avg_rougeL": 0.1648444798534259,
+  "avg_faithfulness": 0.0,
+  "avg_hallucination_rate": 0.0,
+  "individual_results": [
+    {
+      "question": "What is the estimated prevalence of Imerslund-Grasbeck syndrome in Finland and Norway?",
+      "bleu": 0.006523131669239737,
+      "rouge": {
+        "rouge1": 0.20224719101123595,
+        "rouge2": 0.04597701149425287,
+        "rougeL": 0.1797752808988764
+      },
+      "faithfulness": 0.0,
+      "hallucination": {
+        "hallucination_rate": 0.0,
+        "unsupported_terms": [],
+        "total_medical_terms": 0
+      },
+      "answer_length": 74
+    },
+    {
+      "question": "What is the estimated prevalence of the X-linked recessive type of Anhidrotic Ectodermal Dysplasia with Immune Deficiency (EDA-ID)?",
+      "bleu": 0.0031848938480197775,
+      "rouge": {
+        "rouge1": 0.1346153846153846,
+        "rouge2": 0.03921568627450981,
+        "rougeL": 0.09615384615384615
+      },
+      "faithfulness": 0.0,
+      "hallucination": {
+        "hallucination_rate": 0.0,
+        "unsupported_terms": [],
+        "total_medical_terms": 0
+      },
+      "answer_length": 85
+    },
+    {
+      "question": "What is the estimated prevalence of Complement Component 2 Deficiency in Western countries?",
+      "bleu": 0.06342336308520573,
+      "rouge": {
+        "rouge1": 0.2040816326530612,
+        "rouge2": 0.15172413793103448,
+        "rougeL": 0.16326530612244897
+      },
+      "faithfulness": 0.0,
+      "hallucination": {
+        "hallucination_rate": 0.0,
+        "unsupported_terms": [],
+        "total_medical_terms": 0
+      },
+      "answer_length": 131
+    },
+    {
+      "question": "What are the common symptoms of diabetes?",
+      "bleu": 0.01235818349352026,
+      "rouge": {
+        "rouge1": 0.27522935779816515,
+        "rouge2": 0.1308411214953271,
+        "rougeL": 0.22018348623853212
+      },
+      "faithfulness": 0.0,
+      "hallucination": {
+        "hallucination_rate": 0.0,
+        "unsupported_terms": [],
+        "total_medical_terms": 0
+      },
+      "answer_length": 108
+    }
+  ],
+  "total_eval_time": 268.62704515457153,
+  "avg_generation_time": 67.13931155204773
+}

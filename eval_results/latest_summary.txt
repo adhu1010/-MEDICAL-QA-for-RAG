@@ -1,0 +1,9 @@
+MEDICAL RAG QA EVALUATION SUMMARY
+========================================
+Timestamp: Thu Feb 26 10:27:42 2026
+Test Cases: 4
+Avg BLEU: 0.0214
+Avg ROUGE-L: 0.1648
+Avg Faithfulness: 0.0000
+Avg Hallucination Rate: 0.0000
+Avg Gen Time: 67.14s

@@ -46,7 +46,7 @@ def main():
     """Main setup process"""
     print("""
     ╔══════════════════════════════════════════════════════════╗
-    ║  Medical RAG QA System - Setup Script                   ║
+    ║  Medical RAG QA System - Setup Script                    ║
     ║  This will set up your development environment           ║
     ╚══════════════════════════════════════════════════════════╝
     """)

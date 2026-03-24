@@ -1,0 +1,287 @@
+[
+  {
+    "question": "What are the symptoms of Cryptogenic organizing pneumonia ?",
+    "bleu": 0.2502298521720023,
+    "rouge": {
+      "rouge1": 0.4427480916030534,
+      "rouge2": 0.4186046511627907,
+      "rougeL": 0.4427480916030534
+    },
+    "faithfulness": 0.12048192771084337,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 97,
+    "confidence": 0.9185236172838884,
+    "generation_time": 77.70055103302002,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the symptoms of Kienbock's disease ?",
+    "bleu": 0.005482098031085104,
+    "rouge": {
+      "rouge1": 0.2505399568034557,
+      "rouge2": 0.039045553145336226,
+      "rougeL": 0.12958963282937366
+    },
+    "faithfulness": 0.06784660766961652,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 148,
+    "confidence": 0.9570600571770536,
+    "generation_time": 69.62166333198547,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the treatments for hypomyelination and congenital cataract ?",
+    "bleu": 0.0024388444158207705,
+    "rouge": {
+      "rouge1": 0.15533980582524273,
+      "rouge2": 0.0,
+      "rougeL": 0.08737864077669902
+    },
+    "faithfulness": 0.09774436090225563,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 145,
+    "confidence": 0.8773391365727742,
+    "generation_time": 68.40353775024414,
+    "num_evidences": 10
+  },
+  {
+    "question": "How many people are affected by GRACILE syndrome ?",
+    "bleu": 0.007205335066302803,
+    "rouge": {
+      "rouge1": 0.09375000000000001,
+      "rouge2": 0.0,
+      "rougeL": 0.0625
+    },
+    "faithfulness": 0.04229607250755287,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 34,
+    "confidence": 0.9175510425769586,
+    "generation_time": 65.36147046089172,
+    "num_evidences": 8
+  },
+  {
+    "question": "How many people are affected by spastic paraplegia type 4 ?",
+    "bleu": 0.04688059099919511,
+    "rouge": {
+      "rouge1": 0.1984732824427481,
+      "rouge2": 0.07751937984496124,
+      "rougeL": 0.13740458015267176
+    },
+    "faithfulness": 0.13513513513513514,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 112,
+    "confidence": 0.9623615325273299,
+    "generation_time": 51.90531373023987,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Marshall-Smith syndrome ?",
+    "bleu": 0.0015418155272862082,
+    "rouge": {
+      "rouge1": 0.16791604197901053,
+      "rouge2": 0.045112781954887216,
+      "rougeL": 0.08995502248875563
+    },
+    "faithfulness": 0.06813996316758748,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 122,
+    "confidence": 0.8347861382564474,
+    "generation_time": 56.11557960510254,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of C1q deficiency ?",
+    "bleu": 0.0019330108073392464,
+    "rouge": {
+      "rouge1": 0.20833333333333334,
+      "rouge2": 0.017964071856287425,
+      "rougeL": 0.09523809523809525
+    },
+    "faithfulness": 0.07157057654075547,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 93,
+    "confidence": 0.8638566157326608,
+    "generation_time": 53.36315870285034,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Polycystic liver disease ?",
+    "bleu": 0.013730389341386335,
+    "rouge": {
+      "rouge1": 0.2634146341463415,
+      "rouge2": 0.06372549019607844,
+      "rougeL": 0.13170731707317074
+    },
+    "faithfulness": 0.08527131782945736,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 124,
+    "confidence": 0.9012711994975294,
+    "generation_time": 62.33900022506714,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Peripheral Neuropathy ?",
+    "bleu": 0.05565496144077041,
+    "rouge": {
+      "rouge1": 0.3043478260869565,
+      "rouge2": 0.1094890510948905,
+      "rougeL": 0.18115942028985507
+    },
+    "faithfulness": 0.09619686800894854,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 97,
+    "confidence": 0.91514482195571,
+    "generation_time": 69.48583507537842,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Nocardiosis ?",
+    "bleu": 0.0075920594026446875,
+    "rouge": {
+      "rouge1": 0.3709090909090909,
+      "rouge2": 0.05128205128205128,
+      "rougeL": 0.16727272727272727
+    },
+    "faithfulness": 0.175,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 161,
+    "confidence": 0.9332184906341418,
+    "generation_time": 69.3480851650238,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Duodenal atresia ?",
+    "bleu": 0.005134487264369095,
+    "rouge": {
+      "rouge1": 0.2909090909090909,
+      "rouge2": 0.05744125326370757,
+      "rougeL": 0.14545454545454545
+    },
+    "faithfulness": 0.07317073170731707,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 139,
+    "confidence": 0.872726130510323,
+    "generation_time": 80.59800910949707,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Sjogren-Larsson-like syndrome ?",
+    "bleu": 0.11399523436318729,
+    "rouge": {
+      "rouge1": 0.37905236907730677,
+      "rouge2": 0.15538847117794485,
+      "rougeL": 0.24438902743142144
+    },
+    "faithfulness": 0.1196808510638298,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 160,
+    "confidence": 0.7703439881678519,
+    "generation_time": 72.18970322608948,
+    "num_evidences": 9
+  },
+  {
+    "question": "How many people are affected by SOX2 anophthalmia syndrome ?",
+    "bleu": 0.03513597218173687,
+    "rouge": {
+      "rouge1": 0.3283582089552239,
+      "rouge2": 0.15384615384615385,
+      "rougeL": 0.2686567164179104
+    },
+    "faithfulness": 0.07407407407407407,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 38,
+    "confidence": 0.9085097540715505,
+    "generation_time": 60.81864070892334,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) surfactant dysfunction ?",
+    "bleu": 0.009920212920960347,
+    "rouge": {
+      "rouge1": 0.18181818181818182,
+      "rouge2": 0.05309734513274336,
+      "rougeL": 0.093841642228739
+    },
+    "faithfulness": 0.0484375,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 82,
+    "confidence": 0.8898218996932169,
+    "generation_time": 60.711915254592896,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the treatments for Ehlers-Danlos syndrome, progeroid type ?",
+    "bleu": 0.008755607825598517,
+    "rouge": {
+      "rouge1": 0.3004694835680751,
+      "rouge2": 0.08530805687203792,
+      "rougeL": 0.16901408450704225
+    },
+    "faithfulness": 0.07272727272727272,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 119,
+    "confidence": 0.926170561351386,
+    "generation_time": 52.84930205345154,
+    "num_evidences": 10
+  }
+]

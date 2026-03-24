@@ -1,0 +1,47 @@
+[
+  {
+    "question": "What are the symptoms of Cryptogenic organizing pneumonia ?",
+    "reference": "What are the signs and symptoms of cryptogenic organizing pneumonia? Signs and symptoms of cryptogenic organizing pneumonia (COP) vary but may include: Persistent nonproductive cough Difficult or labored breathing Fever Malaise Weight loss Hemoptysis (rare)",
+    "raw": {
+      "answer": "Hello, I am an AI assistant. You can call me AI. How may I help you today?",
+      "metrics": {
+        "question": "What are the symptoms of Cryptogenic organizing pneumonia ?",
+        "bleu": 0.003989897456999802,
+        "rouge": {
+          "rouge1": 0.038461538461538464,
+          "rouge2": 0.0,
+          "rougeL": 0.038461538461538464
+        },
+        "faithfulness": 0.0,
+        "hallucination": {
+          "hallucination_rate": 0.0,
+          "unsupported_terms": [],
+          "total_medical_terms": 0
+        },
+        "answer_length": 17
+      },
+      "time": 40.29190468788147
+    },
+    "rag": {
+      "answer": "What are the signs and symptoms of cryptogenic organizing pneumonia? Signs and symptoms of cryptogenic organizing pneumonia (COP) vary but\n\n⚠️ Important: This information is for educational purposes only. Always consult with a qualified healthcare professional before making any medical decisions.",
+      "metrics": {
+        "question": "What are the symptoms of Cryptogenic organizing pneumonia ?",
+        "bleu": 0.4676847865510311,
+        "rouge": {
+          "rouge1": 0.5333333333333333,
+          "rouge2": 0.5205479452054794,
+          "rougeL": 0.5333333333333333
+        },
+        "faithfulness": 0.0875,
+        "hallucination": {
+          "hallucination_rate": 0.0,
+          "unsupported_terms": [],
+          "total_medical_terms": 0
+        },
+        "answer_length": 41
+      },
+      "time": 105.90118432044983,
+      "num_evidences": 9
+    }
+  }
+]
