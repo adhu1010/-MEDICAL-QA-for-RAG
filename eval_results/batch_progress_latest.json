@@ -763,5 +763,1152 @@
     "confidence": 0.920930552482605,
     "generation_time": 68.42920231819153,
     "num_evidences": 5
+  },
+  {
+    "question": "Is carbamoyl phosphate synthetase I deficiency inherited ?",
+    "bleu": 0.0025386772918494123,
+    "rouge": {
+      "rouge1": 0.1758241758241758,
+      "rouge2": 0.011111111111111112,
+      "rougeL": 0.10989010989010989
+    },
+    "faithfulness": 0.2222222222222222,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 137,
+    "confidence": 0.9255030227456646,
+    "generation_time": 62.30600333213806,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Zika Virus ?",
+    "bleu": 0.028937114551452394,
+    "rouge": {
+      "rouge1": 0.37150127226463103,
+      "rouge2": 0.10230179028132992,
+      "rougeL": 0.18320610687022898
+    },
+    "faithfulness": 0.11450381679389313,
+    "hallucination": {
+      "hallucination_rate": 1.0,
+      "unsupported_terms": [
+        "Latin",
+        "Surin"
+      ],
+      "total_medical_terms": 2
+    },
+    "answer_length": 149,
+    "confidence": 0.8767979980303094,
+    "generation_time": 66.13381600379944,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the genetic changes related to dermatofibrosarcoma protuberans ?",
+    "bleu": 0.03978228126969769,
+    "rouge": {
+      "rouge1": 0.3728813559322034,
+      "rouge2": 0.13191489361702127,
+      "rougeL": 0.17796610169491528
+    },
+    "faithfulness": 0.10089686098654709,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 152,
+    "confidence": 0.9252827024342535,
+    "generation_time": 57.606016635894775,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the treatments for Cheilitis glandularis ?",
+    "bleu": 0.0019929368741423495,
+    "rouge": {
+      "rouge1": 0.22178988326848248,
+      "rouge2": 0.02734375,
+      "rougeL": 0.11673151750972763
+    },
+    "faithfulness": 0.09393346379647749,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 122,
+    "confidence": 0.8560656369940858,
+    "generation_time": 60.43472146987915,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Brachydactyly type A2 ?",
+    "bleu": 0.003557948905857942,
+    "rouge": {
+      "rouge1": 0.25792811839323465,
+      "rouge2": 0.050955414012738856,
+      "rougeL": 0.10993657505285413
+    },
+    "faithfulness": 0.08333333333333333,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 119,
+    "confidence": 0.8401783361876571,
+    "generation_time": 55.18988656997681,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the treatments for X-linked immunodeficiency with magnesium defect, Epstein-Barr virus infection, and neoplasia ?",
+    "bleu": 0.0028083214839393377,
+    "rouge": {
+      "rouge1": 0.10322580645161292,
+      "rouge2": 0.0,
+      "rougeL": 0.06451612903225808
+    },
+    "faithfulness": 0.07610619469026549,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 108,
+    "confidence": 0.9304631424233897,
+    "generation_time": 81.37577533721924,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the treatments for episodic ataxia ?",
+    "bleu": 0.0037408660857288357,
+    "rouge": {
+      "rouge1": 0.14634146341463417,
+      "rouge2": 0.012345679012345678,
+      "rougeL": 0.08536585365853658
+    },
+    "faithfulness": 0.08547008547008547,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.8934628852613946,
+    "generation_time": 61.49026370048523,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Multiple endocrine neoplasia type 2A ?",
+    "bleu": 0.004223616393986891,
+    "rouge": {
+      "rouge1": 0.31632653061224486,
+      "rouge2": 0.035897435897435895,
+      "rougeL": 0.14285714285714285
+    },
+    "faithfulness": 0.11471321695760599,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 143,
+    "confidence": 0.9436483084602652,
+    "generation_time": 69.02948355674744,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) Noonan syndrome ?",
+    "bleu": 0.0030681072295771178,
+    "rouge": {
+      "rouge1": 0.21087314662273476,
+      "rouge2": 0.046280991735537194,
+      "rougeL": 0.11532125205930809
+    },
+    "faithfulness": 0.1693121693121693,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 143,
+    "confidence": 0.9517969012260437,
+    "generation_time": 62.34941291809082,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Hyperlipidemia type 3 ?",
+    "bleu": 0.025687384414821587,
+    "rouge": {
+      "rouge1": 0.2768361581920904,
+      "rouge2": 0.08522727272727272,
+      "rougeL": 0.15254237288135591
+    },
+    "faithfulness": 0.0927536231884058,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 120,
+    "confidence": 0.893680459650873,
+    "generation_time": 50.48667097091675,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Klinefelter's Syndrome ?",
+    "bleu": 0.0032025641110900948,
+    "rouge": {
+      "rouge1": 0.1764705882352941,
+      "rouge2": 0.01694915254237288,
+      "rougeL": 0.09243697478991597
+    },
+    "faithfulness": 0.1016260162601626,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 79,
+    "confidence": 0.9452938996032536,
+    "generation_time": 65.08268690109253,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) nemaline myopathy ?",
+    "bleu": 0.06043364541650536,
+    "rouge": {
+      "rouge1": 0.38392857142857134,
+      "rouge2": 0.13004484304932734,
+      "rougeL": 0.20089285714285715
+    },
+    "faithfulness": 0.14615384615384616,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 163,
+    "confidence": 0.9179423093461339,
+    "generation_time": 58.58783936500549,
+    "num_evidences": 10
+  },
+  {
+    "question": "Who is at risk for Glaucoma? ?",
+    "bleu": 0.0071279296619038285,
+    "rouge": {
+      "rouge1": 0.1971830985915493,
+      "rouge2": 0.014285714285714285,
+      "rougeL": 0.09859154929577466
+    },
+    "faithfulness": 0.0972972972972973,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.9141462837467655,
+    "generation_time": 65.90829515457153,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Pressure Sores ?",
+    "bleu": 0.0038536812421796347,
+    "rouge": {
+      "rouge1": 0.20606060606060608,
+      "rouge2": 0.03680981595092024,
+      "rougeL": 0.14545454545454548
+    },
+    "faithfulness": 0.054245283018867926,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 49,
+    "confidence": 0.8427649043859894,
+    "generation_time": 72.53319931030273,
+    "num_evidences": 10
+  },
+  {
+    "question": "What causes Amniotic band syndrome ?",
+    "bleu": 0.04062478619623357,
+    "rouge": {
+      "rouge1": 0.26737967914438504,
+      "rouge2": 0.1189189189189189,
+      "rougeL": 0.18181818181818182
+    },
+    "faithfulness": 0.09503239740820735,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 155,
+    "confidence": 0.8876765228826684,
+    "generation_time": 78.78878259658813,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Adrenal Gland Cancer ?",
+    "bleu": 0.03095616910047934,
+    "rouge": {
+      "rouge1": 0.21176470588235297,
+      "rouge2": 0.17857142857142858,
+      "rougeL": 0.19999999999999998
+    },
+    "faithfulness": 0.05585106382978723,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 38,
+    "confidence": 0.8886745707503005,
+    "generation_time": 71.31470608711243,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Hives ?",
+    "bleu": 0.015706022216889503,
+    "rouge": {
+      "rouge1": 0.4016064257028112,
+      "rouge2": 0.05668016194331984,
+      "rougeL": 0.19277108433734938
+    },
+    "faithfulness": 0.12885154061624648,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 145,
+    "confidence": 0.8503749764724038,
+    "generation_time": 57.21486854553223,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the genetic changes related to hereditary multiple osteochondromas ?",
+    "bleu": 0.10539620223339728,
+    "rouge": {
+      "rouge1": 0.34659090909090906,
+      "rouge2": 0.19999999999999998,
+      "rougeL": 0.2784090909090909
+    },
+    "faithfulness": 0.09473684210526316,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 111,
+    "confidence": 0.914876607485164,
+    "generation_time": 73.5504698753357,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) 5q minus syndrome ?",
+    "bleu": 0.0016371009560590274,
+    "rouge": {
+      "rouge1": 0.06968641114982577,
+      "rouge2": 0.007017543859649124,
+      "rougeL": 0.055749128919860634
+    },
+    "faithfulness": 0.05277777777777778,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 91,
+    "confidence": 0.877030940009265,
+    "generation_time": 53.97004580497742,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Keutel syndrome ?",
+    "bleu": 0.31033071977055376,
+    "rouge": {
+      "rouge1": 0.42786069651741293,
+      "rouge2": 0.3115577889447236,
+      "rougeL": 0.3880597014925373
+    },
+    "faithfulness": 0.16358839050131926,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 106,
+    "confidence": 0.7949877225942702,
+    "generation_time": 69.67911839485168,
+    "num_evidences": 10
+  },
+  {
+    "question": "How to diagnose COACH syndrome ?",
+    "bleu": 0.005435841585529674,
+    "rouge": {
+      "rouge1": 0.1896551724137931,
+      "rouge2": 0.0,
+      "rougeL": 0.10344827586206898
+    },
+    "faithfulness": 0.09550561797752809,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 56,
+    "confidence": 0.8444801391088854,
+    "generation_time": 56.3950252532959,
+    "num_evidences": 8
+  },
+  {
+    "question": "Is lattice corneal dystrophy type I inherited ?",
+    "bleu": 0.006369304104455854,
+    "rouge": {
+      "rouge1": 0.10256410256410256,
+      "rouge2": 0.0,
+      "rougeL": 0.07692307692307693
+    },
+    "faithfulness": 0.06746031746031746,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 41,
+    "confidence": 0.940728775120178,
+    "generation_time": 61.31573486328125,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the symptoms of ADCY5-related dyskinesia ?",
+    "bleu": 0.0031339295276285404,
+    "rouge": {
+      "rouge1": 0.24000000000000002,
+      "rouge2": 0.03753351206434317,
+      "rougeL": 0.112
+    },
+    "faithfulness": 0.08583690987124463,
+    "hallucination": {
+      "hallucination_rate": 1.0,
+      "unsupported_terms": [
+        "Insulin"
+      ],
+      "total_medical_terms": 1
+    },
+    "answer_length": 125,
+    "confidence": 0.9370594921589619,
+    "generation_time": 54.143505811691284,
+    "num_evidences": 10
+  },
+  {
+    "question": "What causes Heart Failure ?",
+    "bleu": 0.3921809245471418,
+    "rouge": {
+      "rouge1": 0.6266666666666666,
+      "rouge2": 0.5540540540540541,
+      "rougeL": 0.5866666666666667
+    },
+    "faithfulness": 0.1436950146627566,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 102,
+    "confidence": 0.8821848447224083,
+    "generation_time": 56.053855895996094,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) Cleft Lip and Palate ?",
+    "bleu": 0.02391586728867137,
+    "rouge": {
+      "rouge1": 0.39702233250620345,
+      "rouge2": 0.08478802992518703,
+      "rougeL": 0.21836228287841192
+    },
+    "faithfulness": 0.11061946902654868,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 146,
+    "confidence": 0.8938952251166798,
+    "generation_time": 86.68021035194397,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the genetic changes related to juvenile polyposis syndrome ?",
+    "bleu": 0.17979366857605011,
+    "rouge": {
+      "rouge1": 0.4280155642023346,
+      "rouge2": 0.21960784313725493,
+      "rougeL": 0.25680933852140075
+    },
+    "faithfulness": 0.1650943396226415,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 141,
+    "confidence": 0.9095592315318484,
+    "generation_time": 63.82378029823303,
+    "num_evidences": 8
+  },
+  {
+    "question": "Is hyperparathyroidism-jaw tumor syndrome inherited ?",
+    "bleu": 0.009623408045823543,
+    "rouge": {
+      "rouge1": 0.22000000000000003,
+      "rouge2": 0.04081632653061224,
+      "rougeL": 0.08
+    },
+    "faithfulness": 0.08013937282229965,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 71,
+    "confidence": 0.9354804030347746,
+    "generation_time": 62.521498918533325,
+    "num_evidences": 9
+  },
+  {
+    "question": "Is mevalonate kinase deficiency inherited ?",
+    "bleu": 0.1049983700134417,
+    "rouge": {
+      "rouge1": 0.42512077294685996,
+      "rouge2": 0.24390243902439024,
+      "rougeL": 0.28019323671497587
+    },
+    "faithfulness": 0.13872832369942195,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 159,
+    "confidence": 0.8862356586450288,
+    "generation_time": 59.05649137496948,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) 15q13.3 microduplication syndrome ?",
+    "bleu": 0.03729726016894388,
+    "rouge": {
+      "rouge1": 0.37770897832817335,
+      "rouge2": 0.09968847352024922,
+      "rougeL": 0.19814241486068115
+    },
+    "faithfulness": 0.10688836104513064,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 122,
+    "confidence": 0.7506838899363693,
+    "generation_time": 77.20069742202759,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the genetic changes related to factor XIII deficiency ?",
+    "bleu": 1.917645805974226e-05,
+    "rouge": {
+      "rouge1": 0.0934065934065934,
+      "rouge2": 0.0,
+      "rougeL": 0.054945054945054944
+    },
+    "faithfulness": 0.0224,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 45,
+    "confidence": 0.9125232154603158,
+    "generation_time": 68.63347458839417,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the symptoms of Charlie M syndrome ?",
+    "bleu": 0.08010033680515898,
+    "rouge": {
+      "rouge1": 0.2383419689119171,
+      "rouge2": 0.19270833333333331,
+      "rougeL": 0.22279792746113988
+    },
+    "faithfulness": 0.09243697478991597,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 119,
+    "confidence": 0.779934415948849,
+    "generation_time": 56.39726424217224,
+    "num_evidences": 9
+  },
+  {
+    "question": "Is nonsyndromic holoprosencephaly inherited ?",
+    "bleu": 0.18390284491883005,
+    "rouge": {
+      "rouge1": 0.4890829694323144,
+      "rouge2": 0.28193832599118945,
+      "rougeL": 0.34934497816593885
+    },
+    "faithfulness": 0.1293634496919918,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 146,
+    "confidence": 0.9227454103829091,
+    "generation_time": 65.08609867095947,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the symptoms of Cyclic Vomiting Syndrome ?",
+    "bleu": 0.01140244793853792,
+    "rouge": {
+      "rouge1": 0.2580645161290322,
+      "rouge2": 0.05309734513274336,
+      "rougeL": 0.12316715542521996
+    },
+    "faithfulness": 0.07547169811320754,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 136,
+    "confidence": 0.9280672126258201,
+    "generation_time": 66.53578209877014,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Langerhans cell histiocytosis ?",
+    "bleu": 0.0016703751381219063,
+    "rouge": {
+      "rouge1": 0.25962910128388017,
+      "rouge2": 0.06294706723891272,
+      "rougeL": 0.12838801711840228
+    },
+    "faithfulness": 0.16720257234726688,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 144,
+    "confidence": 0.9385450098391583,
+    "generation_time": 67.30798125267029,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Junctional epidermolysis bullosa ?",
+    "bleu": 0.0004049119288495739,
+    "rouge": {
+      "rouge1": 0.11000000000000001,
+      "rouge2": 0.030150753768844223,
+      "rougeL": 0.075
+    },
+    "faithfulness": 0.11782477341389729,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.8955820791988073,
+    "generation_time": 77.0979745388031,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) sialuria ?",
+    "bleu": 0.024452289472019984,
+    "rouge": {
+      "rouge1": 0.2909090909090909,
+      "rouge2": 0.05128205128205129,
+      "rougeL": 0.16727272727272727
+    },
+    "faithfulness": 0.0886426592797784,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 103,
+    "confidence": 0.8744578251821341,
+    "generation_time": 51.93155860900879,
+    "num_evidences": 10
+  },
+  {
+    "question": "Is Li-Fraumeni syndrome inherited ?",
+    "bleu": 0.521874676411547,
+    "rouge": {
+      "rouge1": 0.6666666666666667,
+      "rouge2": 0.6615384615384615,
+      "rougeL": 0.6666666666666667
+    },
+    "faithfulness": 0.17692307692307693,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 81,
+    "confidence": 0.9033809219030373,
+    "generation_time": 60.1873254776001,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the treatments for popliteal pterygium syndrome ?",
+    "bleu": 0.004862215879511135,
+    "rouge": {
+      "rouge1": 0.12612612612612611,
+      "rouge2": 0.0,
+      "rougeL": 0.05405405405405406
+    },
+    "faithfulness": 0.09655172413793103,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.8988106375650267,
+    "generation_time": 58.93633055686951,
+    "num_evidences": 10
+  },
+  {
+    "question": "How to prevent Parasites - Ascariasis ?",
+    "bleu": 0.0008970783106562987,
+    "rouge": {
+      "rouge1": 0.12698412698412698,
+      "rouge2": 0.016129032258064516,
+      "rougeL": 0.07936507936507937
+    },
+    "faithfulness": 0.03435114503816794,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 26,
+    "confidence": 0.8443339618293111,
+    "generation_time": 79.79028868675232,
+    "num_evidences": 10
+  },
+  {
+    "question": "What causes Dumping Syndrome ?",
+    "bleu": 0.3299990967703788,
+    "rouge": {
+      "rouge1": 0.5525291828793775,
+      "rouge2": 0.39999999999999997,
+      "rougeL": 0.43579766536964976
+    },
+    "faithfulness": 0.1976284584980237,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 159,
+    "confidence": 0.896239457199526,
+    "generation_time": 57.0727596282959,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) Problems with Smell ?",
+    "bleu": 0.0025437484158960595,
+    "rouge": {
+      "rouge1": 0.10256410256410256,
+      "rouge2": 0.0,
+      "rougeL": 0.08547008547008547
+    },
+    "faithfulness": 0.017521902377972465,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 39,
+    "confidence": 0.9263047567648832,
+    "generation_time": 65.5097222328186,
+    "num_evidences": 11
+  },
+  {
+    "question": "What are the symptoms of Miller-Dieker syndrome ?",
+    "bleu": 0.00037415993383076206,
+    "rouge": {
+      "rouge1": 0.1669829222011385,
+      "rouge2": 0.030476190476190473,
+      "rougeL": 0.08349146110056925
+    },
+    "faithfulness": 0.08616187989556136,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 94,
+    "confidence": 0.9160711838118549,
+    "generation_time": 55.44567918777466,
+    "num_evidences": 10
+  },
+  {
+    "question": "How many people are affected by citrullinemia ?",
+    "bleu": 0.23333780932214554,
+    "rouge": {
+      "rouge1": 0.31932773109243695,
+      "rouge2": 0.25641025641025644,
+      "rougeL": 0.28571428571428575
+    },
+    "faithfulness": 0.08602150537634409,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.9266784955702503,
+    "generation_time": 61.05247712135315,
+    "num_evidences": 9
+  },
+  {
+    "question": "What causes Nance-Horan syndrome ?",
+    "bleu": 0.004973304279674519,
+    "rouge": {
+      "rouge1": 0.10416666666666666,
+      "rouge2": 0.02127659574468085,
+      "rougeL": 0.08333333333333331
+    },
+    "faithfulness": 0.027896995708154508,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 29,
+    "confidence": 0.8325420693106503,
+    "generation_time": 59.7487154006958,
+    "num_evidences": 8
+  },
+  {
+    "question": "Is ALG1-congenital disorder of glycosylation inherited ?",
+    "bleu": 0.0048080404552108885,
+    "rouge": {
+      "rouge1": 0.09302325581395349,
+      "rouge2": 0.0,
+      "rougeL": 0.06976744186046513
+    },
+    "faithfulness": 0.028089887640449437,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 36,
+    "confidence": 0.9069739239646092,
+    "generation_time": 68.66062617301941,
+    "num_evidences": 9
+  },
+  {
+    "question": "How many people are affected by dystonia 6 ?",
+    "bleu": 0.02447573795099288,
+    "rouge": {
+      "rouge1": 0.27450980392156865,
+      "rouge2": 0.06,
+      "rougeL": 0.09803921568627451
+    },
+    "faithfulness": 0.15476190476190477,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 60,
+    "confidence": 0.9350173188818527,
+    "generation_time": 69.23122143745422,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the treatments for Infantile Refsum Disease ?",
+    "bleu": 0.004245894832183566,
+    "rouge": {
+      "rouge1": 0.17840375586854462,
+      "rouge2": 0.018957345971563982,
+      "rougeL": 0.13145539906103287
+    },
+    "faithfulness": 0.08893709327548807,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 157,
+    "confidence": 0.929975910598948,
+    "generation_time": 59.50377058982849,
+    "num_evidences": 10
+  },
+  {
+    "question": "What to do for What I need to know about Kidney Failure and How Its Treated ?",
+    "bleu": 0.018743882083532257,
+    "rouge": {
+      "rouge1": 0.3776223776223776,
+      "rouge2": 0.09154929577464789,
+      "rougeL": 0.1888111888111888
+    },
+    "faithfulness": 0.16129032258064516,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 165,
+    "confidence": 0.9416696301588366,
+    "generation_time": 68.26131582260132,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Neural Tube Defects ?",
+    "bleu": 4.4426609067499924e-05,
+    "rouge": {
+      "rouge1": 0.072,
+      "rouge2": 0.024193548387096774,
+      "rougeL": 0.04
+    },
+    "faithfulness": 0.023157894736842106,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 28,
+    "confidence": 0.8735297207075006,
+    "generation_time": 66.9751808643341,
+    "num_evidences": 10
+  },
+  {
+    "question": "Is TK2-related mitochondrial DNA depletion syndrome, myopathic form inherited ?",
+    "bleu": 0.006170664981382018,
+    "rouge": {
+      "rouge1": 0.2451612903225806,
+      "rouge2": 0.0130718954248366,
+      "rougeL": 0.12903225806451613
+    },
+    "faithfulness": 0.09523809523809523,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 104,
+    "confidence": 0.8663501657174308,
+    "generation_time": 62.98996615409851,
+    "num_evidences": 8
+  },
+  {
+    "question": "What are the symptoms of Spinocerebellar ataxia 12 ?",
+    "bleu": 0.008619442617847823,
+    "rouge": {
+      "rouge1": 0.14153846153846156,
+      "rouge2": 0.06811145510835913,
+      "rougeL": 0.12307692307692308
+    },
+    "faithfulness": 0.03987730061349693,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 81,
+    "confidence": 0.926777292245126,
+    "generation_time": 55.20253133773804,
+    "num_evidences": 10
+  },
+  {
+    "question": "Who is at risk for ? ?",
+    "bleu": 0.0020921409324852983,
+    "rouge": {
+      "rouge1": 0.2023529411764706,
+      "rouge2": 0.014184397163120567,
+      "rougeL": 0.09411764705882353
+    },
+    "faithfulness": 0.09973045822102426,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 148,
+    "confidence": 0.9217112353423381,
+    "generation_time": 51.41940236091614,
+    "num_evidences": 10
+  },
+  {
+    "question": "What is (are) Autoimmune atrophic gastritis ?",
+    "bleu": 0.002424109156763959,
+    "rouge": {
+      "rouge1": 0.18556701030927836,
+      "rouge2": 0.052083333333333336,
+      "rougeL": 0.1134020618556701
+    },
+    "faithfulness": 0.06927710843373494,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 50,
+    "confidence": 0.9165566828593494,
+    "generation_time": 68.16674304008484,
+    "num_evidences": 9
+  },
+  {
+    "question": "What is (are) Congenital varicella syndrome ?",
+    "bleu": 0.004929119937900914,
+    "rouge": {
+      "rouge1": 0.2510460251046025,
+      "rouge2": 0.025316455696202535,
+      "rougeL": 0.12552301255230125
+    },
+    "faithfulness": 0.12044817927170869,
+    "hallucination": {
+      "hallucination_rate": 1.0,
+      "unsupported_terms": [
+        "Online"
+      ],
+      "total_medical_terms": 1
+    },
+    "answer_length": 142,
+    "confidence": 0.8304845289433798,
+    "generation_time": 71.68981742858887,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the symptoms of Hyperlipoproteinemia type 4 ?",
+    "bleu": 0.0006786036416121701,
+    "rouge": {
+      "rouge1": 0.13114754098360654,
+      "rouge2": 0.019801980198019802,
+      "rougeL": 0.07868852459016393
+    },
+    "faithfulness": 0.10826210826210826,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 61,
+    "confidence": 0.8627851340750612,
+    "generation_time": 72.3206717967987,
+    "num_evidences": 10
+  },
+  {
+    "question": "What causes Juvenile myoclonic epilepsy ?",
+    "bleu": 0.014348649239657424,
+    "rouge": {
+      "rouge1": 0.3248730964467005,
+      "rouge2": 0.0717948717948718,
+      "rougeL": 0.17258883248730963
+    },
+    "faithfulness": 0.16610169491525423,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 129,
+    "confidence": 0.903932370409583,
+    "generation_time": 68.32226872444153,
+    "num_evidences": 10
+  },
+  {
+    "question": "What are the symptoms of Ellis Yale Winter syndrome ?",
+    "bleu": 0.022230473201094517,
+    "rouge": {
+      "rouge1": 0.22972972972972977,
+      "rouge2": 0.07239819004524888,
+      "rougeL": 0.13963963963963963
+    },
+    "faithfulness": 0.09897610921501707,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 130,
+    "confidence": 0.9316494862238566,
+    "generation_time": 52.001317739486694,
+    "num_evidences": 6
+  },
+  {
+    "question": "What is (are) Chiari Malformation ?",
+    "bleu": 4.1883259689750707e-05,
+    "rouge": {
+      "rouge1": 0.11851851851851852,
+      "rouge2": 0.01492537313432836,
+      "rougeL": 0.08148148148148147
+    },
+    "faithfulness": 0.04509283819628647,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 33,
+    "confidence": 0.9334716816751685,
+    "generation_time": 69.0919578075409,
+    "num_evidences": 9
+  },
+  {
+    "question": "What are the symptoms of Tetrahydrobiopterin deficiency ?",
+    "bleu": 0.00014021449460752897,
+    "rouge": {
+      "rouge1": 0.13333333333333333,
+      "rouge2": 0.017857142857142856,
+      "rougeL": 0.08
+    },
+    "faithfulness": 0.05263157894736842,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 1
+    },
+    "answer_length": 74,
+    "confidence": 0.937616006026617,
+    "generation_time": 57.37360954284668,
+    "num_evidences": 10
+  },
+  {
+    "question": "What to do for Alagille Syndrome ?",
+    "bleu": 0.005469600932877628,
+    "rouge": {
+      "rouge1": 0.23129251700680273,
+      "rouge2": 0.03424657534246575,
+      "rougeL": 0.11564625850340136
+    },
+    "faithfulness": 0.07001795332136446,
+    "hallucination": {
+      "hallucination_rate": 0.0,
+      "unsupported_terms": [],
+      "total_medical_terms": 0
+    },
+    "answer_length": 116,
+    "confidence": 0.9031413848718449,
+    "generation_time": 55.23459267616272,
+    "num_evidences": 10
   }
 ]

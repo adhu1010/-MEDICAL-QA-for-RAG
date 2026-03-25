@@ -1,0 +1,12 @@
+{
+  "num_cases": 100,
+  "avg_bleu": 0.04911866514011611,
+  "avg_rouge1": 0.2615618732649763,
+  "avg_rouge2": 0.09091292330176773,
+  "avg_rougeL": 0.16538329392766551,
+  "avg_faithfulness": 0.10036494064313511,
+  "avg_hallucination_rate": 0.05,
+  "avg_confidence": 0.8957927409911677,
+  "avg_generation_time": 64.04055986404418,
+  "avg_num_evidences": 9.43
+}
