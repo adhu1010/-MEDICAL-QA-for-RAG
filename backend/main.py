@@ -204,7 +204,20 @@ async def ask_medical_question(query: MedicalQuery):
             generated_answer = reflector.apply_corrections(
                 generated_answer, safety_check)
 
-        # Step 5: Format final answer
+        # Step 5: Determine the actual retrieval strategy used
+        # If fallback was applied, show the final strategy, not the initial one
+        gen_meta = generated_answer.metadata or {}
+        if gen_meta.get('fallback_applied'):
+            actual_strategy = gen_meta.get('fallback_strategy', processed_query.suggested_strategy.value)
+            initial_strategy = gen_meta.get('original_strategy', processed_query.suggested_strategy.value)
+            # Clean up the strategy string (remove enum prefix if present)
+            if '.' in str(initial_strategy):
+                initial_strategy = str(initial_strategy).split('.')[-1]
+        else:
+            actual_strategy = processed_query.suggested_strategy.value
+            initial_strategy = actual_strategy
+
+        # Step 6: Format final answer
         final_answer = MedicalAnswer(
             question=query.question,
             answer=generated_answer.answer,
@@ -213,7 +226,8 @@ async def ask_medical_question(query: MedicalQuery):
             confidence=generated_answer.confidence,
             safety_validated=safety_check.is_safe,
             metadata={
-                "retrieval_strategy": processed_query.suggested_strategy.value,
+                "retrieval_strategy": actual_strategy,
+                "initial_strategy": initial_strategy,
                 "entities_found": len(processed_query.entities),
                 "evidence_count": len(evidence_texts),
                 "query_type": processed_query.query_type.value,
