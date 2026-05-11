@@ -207,13 +207,27 @@ class AgentController:
                 metadata={}
             )
 
+        # Count how many source types are present
+        active_sources = sum([
+            bool(kg_evidences),
+            bool(vector_evidences),
+            bool(sparse_evidences)
+        ])
+
         # Determine fusion method
         if sparse_evidences and vector_evidences:
             # Use Reciprocal Rank Fusion (RRF) for dense+sparse
             fusion_method = "reciprocal_rank_fusion"
             evidences = self._reciprocal_rank_fusion(evidences)
+        elif active_sources == 1:
+            # Single source: no weight penalization needed
+            # Weights are only meaningful when blending multiple sources
+            fusion_method = "single_source"
+            evidences.sort(key=lambda x: x.confidence, reverse=True)
+            logger.info(
+                f"Single source retrieval - preserving original confidence")
         else:
-            # Use weighted fusion for other combinations
+            # Use weighted fusion for multi-source combinations (e.g., KG + Vector)
             fusion_method = "weighted_fusion"
 
             # Apply fusion weights only to non-empty sources
@@ -239,10 +253,14 @@ class AgentController:
             # Sort by adjusted confidence
             evidences.sort(key=lambda x: x.confidence, reverse=True)
 
-        # Calculate combined confidence
+        # Calculate combined confidence using top-N evidences
+        # Using average of ALL evidences dilutes confidence when many low-relevance
+        # results are returned. Instead, use the mean of top-3 for a stable signal.
         if evidences:
-            confidences = [e.confidence for e in evidences]
-            combined_confidence = sum(confidences) / len(confidences)
+            top_confidences = sorted(
+                [e.confidence for e in evidences], reverse=True
+            )[:3]  # Top 3 most confident results
+            combined_confidence = sum(top_confidences) / len(top_confidences)
         else:
             combined_confidence = 0.0
 
