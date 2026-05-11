@@ -239,6 +239,9 @@ class VectorRetriever:
                     if confidence >= settings.similarity_threshold:
                         metadata = results['metadatas'][0][i] if results['metadatas'] else {
                         }
+                        # Ensure source label is always present
+                        if 'source' not in metadata:
+                            metadata['source'] = 'vector_db'
 
                         evidence = RetrievedEvidence(
                             source_type="vector",

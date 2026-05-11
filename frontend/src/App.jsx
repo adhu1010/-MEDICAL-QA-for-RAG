@@ -203,7 +203,9 @@ const App = () => {
         confidence: Math.round(response.confidence * 100),
         persona: persona,
         mode: response.metadata?.retrieval_strategy || 'Unknown',
-        citation: response.sources?.map(s => `${s.title}: ${(s.content || "").substring(0, 100)}...`).join('\n') || 'No sources found',
+        citation: Array.isArray(response.sources) && response.sources.length > 0
+          ? response.sources.join('\n')
+          : 'No sources found',
         safety_validated: response.safety_validated,
         entities: response.metadata?.entities_found || 0,
         evidence_count: response.metadata?.evidence_count || 0,

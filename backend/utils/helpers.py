@@ -46,14 +46,27 @@ def format_sources(sources: List[Dict[str, Any]]) -> List[str]:
     """Format source references for display"""
     formatted = []
     for source in sources:
-        if source.get("type") == "pubmed":
-            formatted.append(f"PubMed: PMID{source.get('pmid', 'Unknown')}")
-        elif source.get("type") == "medquad":
-            formatted.append(f"MedQuAD: {source.get('category', 'Unknown')}")
-        elif source.get("type") == "kg":
-            formatted.append(f"Knowledge Graph: {source.get('relation', 'Unknown')}")
+        source_name = source.get("source", source.get("type", "")).lower()
+        if source_name == "pubmed":
+            pmid = source.get('pmid', '')
+            formatted.append(f"PubMed: PMID{pmid}" if pmid else "PubMed")
+        elif source_name == "medquad":
+            category = source.get('category', 'General')
+            focus = source.get('focus', '')
+            label = f"MedQuAD: {category}"
+            if focus:
+                label += f" ({focus})"
+            formatted.append(label)
+        elif source_name == "knowledge_graph" or source_name == "kg":
+            predicate = source.get('predicate', source.get('relation', ''))
+            formatted.append(f"Knowledge Graph: {predicate}" if predicate else "Knowledge Graph")
+        elif source_name == "bm25_index":
+            category = source.get('category', '')
+            formatted.append(f"BM25 Index: {category}" if category else "BM25 Sparse Index")
+        elif source_name == "vector_db":
+            formatted.append("Vector Database")
         else:
-            formatted.append(f"{source.get('type', 'Unknown')}: {source.get('id', '')}")
+            formatted.append(f"{source_name or 'Unknown'}: {source.get('id', '')}")
     return formatted
 
 

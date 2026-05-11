@@ -194,12 +194,16 @@ class SparseRetriever:
                 
                 # Only include if above threshold
                 if confidence >= settings.similarity_threshold:
+                    # Ensure source label is preserved from original metadata
+                    doc_metadata = dict(self.metadatas[idx])
+                    if 'source' not in doc_metadata:
+                        doc_metadata['source'] = 'bm25_index'
                     evidence = RetrievedEvidence(
                         source_type="sparse",
                         content=self.documents[idx],
                         confidence=confidence,
                         metadata={
-                            **self.metadatas[idx],
+                            **doc_metadata,
                             'bm25_score': float(score),
                             'doc_id': self.ids[idx]
                         }

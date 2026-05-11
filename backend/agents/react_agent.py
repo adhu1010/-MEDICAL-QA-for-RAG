@@ -137,17 +137,33 @@ Thought:{agent_scratchpad}'''
             # Execute retrieval via AgentController
             fused = self.agent_controller.execute(processed)
             
+            # Store the fused evidence for source extraction later
+            self._last_fused_evidence = fused
+            
             if not fused.evidences:
                 return "No relevant medical information found."
             
-            # Format output for the agent
+            # Format output for the agent with proper source labels
             results = []
             for i, ev in enumerate(fused.evidences[:5], 1): # Top 5 evidences
                 content = ev.content.strip()
                 # Truncate very long content to fit context window
                 if len(content) > 500:
                     content = content[:500] + "..."
-                results.append(f"[{i}] {content} (Source: {ev.source_type})")
+                
+                # Build rich source label
+                source_name = ev.metadata.get('source', ev.source_type).lower()
+                if source_name == 'medquad':
+                    source_label = f"MedQuAD - {ev.metadata.get('category', 'General')}"
+                elif source_name == 'pubmed':
+                    pmid = ev.metadata.get('pmid', '')
+                    source_label = f"PubMed (PMID: {pmid})" if pmid else "PubMed"
+                elif source_name == 'knowledge_graph':
+                    source_label = f"Knowledge Graph - {ev.metadata.get('category', ev.metadata.get('predicate', ''))}"
+                else:
+                    source_label = f"{ev.source_type.upper()} Retriever"
+                
+                results.append(f"[{i}] {content} (Source: {source_label})")
             
             return "\n\n".join(results)
             
@@ -186,6 +202,34 @@ Thought:{agent_scratchpad}'''
                 if action.tool == "search_medical_knowledge":
                     evidence_texts.append(str(observation))
             
+            # Extract source labels from the last fused evidence
+            sources = []
+            seen_sources = set()
+            fused = getattr(self, '_last_fused_evidence', None)
+            if fused and fused.evidences:
+                for ev in fused.evidences[:5]:
+                    source_name = ev.metadata.get('source', '').lower()
+                    if source_name == 'medquad':
+                        category = ev.metadata.get('category', 'General')
+                        focus = ev.metadata.get('focus', '')
+                        label = f"MedQuAD - {category}"
+                        if focus:
+                            label += f" ({focus})"
+                    elif source_name == 'pubmed':
+                        pmid = ev.metadata.get('pmid', '')
+                        label = f"PubMed (PMID: {pmid})" if pmid else "PubMed"
+                    elif source_name == 'knowledge_graph':
+                        category = ev.metadata.get('category', '')
+                        label = f"Knowledge Graph - {category}" if category else "Knowledge Graph"
+                    elif source_name == 'bm25_index':
+                        category = ev.metadata.get('category', '')
+                        label = f"BM25 Index - {category}" if category else "BM25 Sparse Index"
+                    else:
+                        label = f"{ev.source_type.upper()} Retriever"
+                    if label not in seen_sources:
+                        sources.append(label)
+                        seen_sources.add(label)
+            
             # Validate Answer
             if not final_answer_text or "Agent stopped" in final_answer_text:
                 raise ValueError("Agent produced empty or invalid answer")
@@ -193,7 +237,7 @@ Thought:{agent_scratchpad}'''
             return GeneratedAnswer(
                 answer=final_answer_text,
                 confidence=0.85, # ReAct generally yields higher confidence if successful
-                sources=[], # LangChain doesn't easily propagate source objects back
+                sources=sources,
                 reasoning="Generated via Meditron ReAct Agent",
                 evidence_texts=evidence_texts,
                 metadata={'agent_type': 'react_meditron', 'intermediate_steps_count': len(intermediate_steps)}

@@ -370,6 +370,8 @@ class KnowledgeGraphRetriever:
                         content=content,
                         confidence=0.9,  # High confidence for KG facts
                         metadata={
+                            "source": "knowledge_graph",
+                            "category": f"Disease Ontology ({relation})",
                             "subject": source,
                             "predicate": relation,
                             "object": target,
@@ -391,6 +393,8 @@ class KnowledgeGraphRetriever:
                         content=content,
                         confidence=0.9,
                         metadata={
+                            "source": "knowledge_graph",
+                            "category": f"Disease Ontology ({relation})",
                             "subject": source,
                             "predicate": relation,
                             "object": target,
@@ -431,6 +435,8 @@ class KnowledgeGraphRetriever:
                         content=content,
                         confidence=0.9,
                         metadata={
+                            "source": "knowledge_graph",
+                            "category": f"Neo4j ({record['predicate']})",
                             "subject": record['subject'],
                             "predicate": record['predicate'],
                             "object": record['object']

@@ -798,13 +798,52 @@ Answer:"""
 
         # Extract sources
         sources = []
+        seen_sources = set()  # Avoid duplicate source labels
         for ev in evidence.evidences[:5]:  # Show up to 5 sources
-            source_info = f"{ev.metadata.get('source', 'Unknown').upper()}"
-            if 'pmid' in ev.metadata:
-                source_info += f" (PMID: {ev.metadata['pmid']})"
-            elif 'category' in ev.metadata:
-                source_info += f" - {ev.metadata['category']}"
-            sources.append(source_info)
+            source_name = ev.metadata.get('source', '').lower()
+            source_label = ""
+
+            if source_name == 'medquad':
+                category = ev.metadata.get('category', 'General')
+                focus = ev.metadata.get('focus', '')
+                source_label = f"MedQuAD - {category}"
+                if focus:
+                    source_label += f" ({focus})"
+            elif source_name == 'pubmed':
+                pmid = ev.metadata.get('pmid', '')
+                journal = ev.metadata.get('journal', '')
+                if pmid:
+                    source_label = f"PubMed (PMID: {pmid})"
+                elif journal:
+                    source_label = f"PubMed - {journal}"
+                else:
+                    source_label = "PubMed"
+            elif source_name == 'knowledge_graph':
+                category = ev.metadata.get('category', '')
+                predicate = ev.metadata.get('predicate', '')
+                if category:
+                    source_label = f"Knowledge Graph - {category}"
+                elif predicate:
+                    source_label = f"Knowledge Graph ({predicate})"
+                else:
+                    source_label = "Knowledge Graph"
+            elif source_name == 'bm25_index':
+                # BM25 sparse retrieval - check if original data source info is available
+                category = ev.metadata.get('category', '')
+                if category:
+                    source_label = f"BM25 Index - {category}"
+                else:
+                    source_label = "BM25 Sparse Index"
+            elif source_name == 'vector_db':
+                source_label = "Vector Database"
+            else:
+                # Fallback: use source_type from evidence
+                source_label = f"{ev.source_type.upper()} Retriever"
+
+            # Deduplicate sources
+            if source_label and source_label not in seen_sources:
+                sources.append(source_label)
+                seen_sources.add(source_label)
 
         generated = GeneratedAnswer(
             answer=answer_text,
