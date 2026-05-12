@@ -229,6 +229,7 @@ async def ask_medical_question(query: MedicalQuery):
                 "retrieval_strategy": actual_strategy,
                 "initial_strategy": initial_strategy,
                 "entities_found": len(processed_query.entities),
+                "entities_list": [e.text for e in processed_query.entities],
                 "evidence_count": len(evidence_texts),
                 "query_type": processed_query.query_type.value,
                 "detected_mode": final_mode.value,

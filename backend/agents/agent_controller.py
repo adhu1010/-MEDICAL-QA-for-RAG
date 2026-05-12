@@ -352,10 +352,90 @@ class AgentController:
                     f"Confidence acceptable: {fused.combined_confidence:.2f} >= {confidence_threshold:.2f}"
                 )
 
+        # Step 5: Entity-aware re-ranking
+        # Boost evidence that actually mentions the query's key entities
+        # This prevents semantically similar but irrelevant docs from dominating
+        if query.entities and fused.evidences:
+            fused.evidences = self._rerank_by_entity_relevance(
+                fused.evidences, query
+            )
+
         logger.info(
             f"Agent execution complete with {len(fused.evidences)} evidences")
 
         return fused
+
+    def _rerank_by_entity_relevance(
+        self,
+        evidences: List[RetrievedEvidence],
+        query: ProcessedQuery
+    ) -> List[RetrievedEvidence]:
+        """
+        Re-rank evidences by how many query entities they mention.
+
+        Boosts evidence that contains the actual queried entities,
+        penalizing semantically similar but topically irrelevant results.
+
+        Args:
+            evidences: Fused evidence list
+            query: Processed query with extracted entities
+
+        Returns:
+            Re-ranked evidence list
+        """
+        # Extract meaningful entity texts (skip generic ones like 'prevalence')
+        generic_terms = {'prevalence', 'treatment', 'symptoms', 'diagnosis',
+                         'causes', 'risk', 'factors', 'management', 'prognosis'}
+        key_entities = [
+            e.text.lower() for e in query.entities
+            if e.text.lower() not in generic_terms and len(e.text) > 2
+        ]
+
+        if not key_entities:
+            return evidences
+
+        # First, evaluate matches for all evidences
+        matches_per_ev = []
+        max_matches = 0
+
+        for ev in evidences:
+            content_lower = ev.content.lower()
+            focus_lower = ev.metadata.get('focus', '').lower()
+
+            # Count how many key entities appear in this evidence
+            entity_matches = sum(
+                1 for entity in key_entities
+                if entity in content_lower or entity in focus_lower
+            )
+            matches_per_ev.append((ev, entity_matches))
+            if entity_matches > max_matches:
+                max_matches = entity_matches
+
+        # Apply boosts and penalties
+        for ev, entity_matches in matches_per_ev:
+            if entity_matches > 0:
+                boost = 1.0 + (0.10 * entity_matches)
+                ev.confidence = min(ev.confidence * boost, 1.0)
+                logger.debug(
+                    f"Entity boost: {entity_matches} matches, "
+                    f"boosted to {ev.confidence:.3f} - {ev.metadata.get('focus', 'unknown')}"
+                )
+            elif max_matches > 0:
+                # If we found relevant docs, severely penalize the completely irrelevant ones
+                # so they don't pollute the context window
+                ev.confidence *= 0.3
+                logger.debug(
+                    f"Entity penalty applied (0 matches) - "
+                    f"reduced to {ev.confidence:.3f} - {ev.metadata.get('focus', 'unknown')}"
+                )
+
+        # Re-sort by boosted confidence
+        evidences.sort(key=lambda x: x.confidence, reverse=True)
+        logger.info(
+            f"Entity re-ranking applied with {len(key_entities)} key entities: {key_entities}"
+        )
+
+        return evidences
 
 
 # Singleton instance

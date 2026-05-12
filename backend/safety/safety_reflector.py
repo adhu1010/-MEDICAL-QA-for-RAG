@@ -140,7 +140,8 @@ class SafetyReflector:
         
         # Simple check: extract medical terms from answer and verify in evidence
         # Extract potential drug names (capitalized words ending in common suffixes)
-        drug_pattern = r'\b[A-Z][a-z]+(?:in|ate|ide|one|ine|cin)\b'
+        # Removed 'in' to prevent false positives on 'Vitamin', 'Cubilin' etc.
+        drug_pattern = r'\b[A-Z][a-z]+(?:ate|ide|one|ine|cin)\b'
         mentioned_drugs = set(re.findall(drug_pattern, answer))
         
         # Check if mentioned drugs appear in evidence

@@ -206,6 +206,7 @@ const App = () => {
         citation: response.sources?.map(s => `${s.title}: ${(s.content || "").substring(0, 100)}...`).join('\n') || 'No sources found',
         safety_validated: response.safety_validated,
         entities: response.metadata?.entities_found || 0,
+        entities_list: response.metadata?.entities_list || [],
         evidence_count: response.metadata?.evidence_count || 0,
       };
 
@@ -234,11 +235,23 @@ const App = () => {
     setIsSending(true);
     setError(null);
 
+    const isFirstMessage = (!currentChatId || messages.length === 0);
     let chatID = currentChatId;
 
-    if (!currentChatId || messages.length === 0) {
+    if (isFirstMessage) {
       const chatsCollectionRef = collection(db, `artifacts/${cleanAppId}/users/${userId}/chats`);
-      const initialTitle = userMessage.substring(0, 30) + '...';
+      
+      // Generate a brief heading from the question
+      const generateBriefTitle = (question) => {
+        let title = question.replace(/^(what is|what are|what's|how do i|how to|tell me about|can you explain|why does|who is|where is|when does|explain)\s+/i, '');
+        title = title.split(' ').slice(0, 4).join(' '); // Take up to 4 words
+        if (title.length === 0) return 'New Chat';
+        title = title.charAt(0).toUpperCase() + title.slice(1); // Capitalize first letter
+        title = title.replace(/[^\w\s]+$/, ''); // Remove trailing punctuation
+        return title + (question.split(' ').length > 4 ? '...' : '');
+      };
+      
+      const initialTitle = generateBriefTitle(userMessage);
       const newChatData = {
         title: initialTitle,
         createdAt: serverTimestamp(),
@@ -276,10 +289,24 @@ const App = () => {
       console.log('[Firebase] Model response saved successfully');
 
       // 4. Update Chat Metadata
-      await updateDoc(doc(db, `artifacts/${cleanAppId}/users/${userId}/chats`, chatID), {
-        lastUpdatedAt: serverTimestamp(),
-      });
-      console.log('[Firebase] Chat metadata updated');
+      const updateData = { lastUpdatedAt: serverTimestamp() };
+      
+      // If this is the first message, try to use the backend's extracted medical entity as the title
+      if (isFirstMessage) {
+        try {
+          const parsedResponse = JSON.parse(modelResponseJSON);
+          if (parsedResponse.entities_list && parsedResponse.entities_list.length > 0) {
+            let entityTitle = parsedResponse.entities_list[0];
+            entityTitle = entityTitle.charAt(0).toUpperCase() + entityTitle.slice(1);
+            updateData.title = entityTitle;
+          }
+        } catch (e) {
+          console.warn('[Firebase] Could not parse JSON to update title with entity');
+        }
+      }
+
+      await updateDoc(doc(db, `artifacts/${cleanAppId}/users/${userId}/chats`, chatID), updateData);
+      console.log('[Firebase] Chat metadata updated', updateData.title ? `with new title: ${updateData.title}` : '');
 
     } catch (e) {
       console.error('[ERROR] Error during chat processing:', e);

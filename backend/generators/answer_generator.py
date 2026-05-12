@@ -128,17 +128,26 @@ class AnswerGenerator:
         """
         # Combine evidence into context
         context_parts = []
-        for i, ev in enumerate(evidence.evidences[:5], 1):  # Top 5 evidences
+        # Filter out very low confidence evidence to prevent hallucination distractions
+        valid_evidences = [ev for ev in evidence.evidences if ev.confidence >= 0.4]
+        
+        for i, ev in enumerate(valid_evidences[:5], 1):  # Top 5 valid evidences
             # Clean up evidence text
             content = ev.content.strip()
-            # Extract answer from Q&A format if present
-            if 'Q:' in content and 'A:' in content:
-                parts = content.split('A:', 1)
-                if len(parts) > 1:
-                    content = parts[1].strip()
-            # Truncate very long evidence entries
-            if len(content) > 300:
-                content = content[:300] + "..."
+            
+            # Extract answer from MedQuAD Q&A format
+            if 'Answer:' in content:
+                content = content.split('Answer:', 1)[-1].strip()
+            elif 'A:' in content:
+                content = content.split('A:', 1)[-1].strip()
+                
+            # If there's still a Question: at the start, remove it
+            if content.startswith('Question:'):
+                content = content.split('\n', 1)[-1].strip()
+            
+            # Truncate very long evidence entries (increased to 800)
+            if len(content) > 800:
+                content = content[:800] + "..."
             context_parts.append(f"- {content}")
 
         context = "\n".join(context_parts)
@@ -234,14 +243,14 @@ Answer:"""
 
 Question: {question}
 
-Provide a clear medical answer:"""
+Provide a detailed, comprehensive medical answer. Answer the question and summarize the condition:"""
         else:  # PATIENT mode
             prompt = f"""Health Info:
 {context}
 
 Question: {question}
 
-Answer in simple terms:"""
+Provide a detailed, comprehensive answer. First answer the question, then explain what the condition is in simple terms:"""
 
         return prompt
 
@@ -289,7 +298,7 @@ Answer in simple terms:"""
                 prompt=full_prompt,
                 options={
                     'temperature': 0.7,
-                    'num_predict': 200,  # Reduced for faster CPU inference
+                    'num_predict': 400,  # Increased to allow full detailed explanations
                     'num_ctx': 2048,     # Limit context window
                     'top_p': 0.9,
                     'top_k': 40,
@@ -332,16 +341,26 @@ Answer in simple terms:"""
             return ""
 
         # First, check if the model echoed the prompt - strip everything before "Detailed Answer:"
-        if 'Detailed Answer:' in answer:
-            answer = answer.split('Detailed Answer:')[-1].strip()
-        elif 'Answer:' in answer:
-            answer = answer.split('Answer:')[-1].strip()
+        if 'Detailed Answer:' in answer and answer.index('Detailed Answer:') < len(answer) / 2:
+            answer = answer.split('Detailed Answer:', 1)[-1].strip()
+        elif answer.startswith('Answer:') or ( 'Answer:' in answer and answer.index('Answer:') < 50):
+            answer = answer.split('Answer:', 1)[-1].strip()
+
+        # If the model starts hallucinating new questions, chop it off!
+        if '\nQuestion:' in answer:
+            answer = answer.split('\nQuestion:')[0].strip()
+        elif '\nQ:' in answer:
+            answer = answer.split('\nQ:')[0].strip()
 
         # Remove common prompt echoes
         prompt_echoes = [
             'Provide a clear medical answer:',
             'Answer in simple terms:',
             'Provide a helpful medical answer based on the information above:',
+            'Provide a detailed, comprehensive medical answer.',
+            'Provide a detailed, comprehensive answer.',
+            'First answer the question, then explain what the condition is in simple terms:',
+            'Answer the question and summarize the condition:',
             'You are a helpful medical',
             'Health Info:',
             'Medical Context:'
@@ -381,7 +400,7 @@ Answer in simple terms:"""
                 continue
 
             # Skip lines that are part of evidence echo
-            if skip_mode and (line_stripped.startswith('-') or any(p in line_stripped for p in prompt_echo_patterns)):
+            if skip_mode and any(p in line_stripped for p in prompt_echo_patterns):
                 continue
             
             # Once we see real content (not evidence/question), stop skipping
